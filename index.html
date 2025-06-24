@@ -261,16 +261,17 @@
                     responseButtons = `<div class="flex space-x-2"><button onclick="handleResponse(${date.id}, true)" class="bg-green-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-green-600">ตอบรับ</button><button onclick="handleResponse(${date.id}, false)" class="bg-red-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-600">ปฏิเสธ</button></div>`;
                 }
                 
-                // ✅ นี่คือโค้ดส่วนที่แก้ไขแล้ว
-                let creatorActions = '';
+                let actionButtons = '';
+                // ✅ ปุ่มแก้ไข: จะแสดงสำหรับทั้งสองคน ตราบใดที่ยังไม่ถึงวันนัดและยังไม่ถูกปฏิเสธ
+                if (date.status !== 'declined' && new Date(date.event_datetime) > new Date()) {
+                    actionButtons += `<button onclick='handleEdit(${JSON.stringify(date)})' class="p-1 text-gray-400 hover:text-blue-500" title="แก้ไข"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>`;
+                }
+                // ✅ ปุ่มลบ: จะแสดงสำหรับคนสร้าง "ในทุกแท็บ"
                 if (isCreator) {
-                    if (date.status !== 'declined' && new Date(date.event_datetime) > new Date()) {
-                        creatorActions += `<button onclick='handleEdit(${JSON.stringify(date)})' class="p-1 text-gray-400 hover:text-blue-500" title="แก้ไข"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>`;
-                    }
-                    creatorActions += `<button onclick="deleteDate(${date.id})" class="p-1 text-gray-400 hover:text-red-500" title="ลบ"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>`;
+                    actionButtons += `<button onclick="deleteDate(${date.id})" class="p-1 text-gray-400 hover:text-red-500" title="ลบ"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>`;
                 }
 
-                const dateCard = `<div class="relative bg-white p-6 rounded-2xl shadow-md border-l-4 ${date.status === 'accepted' ? 'border-green-400' : date.status === 'declined' ? 'border-red-400' : 'border-yellow-400'} animate-fade-in flex flex-col"><div class="absolute top-4 right-4 flex space-x-2">${creatorActions}</div><div class="flex-grow"><p class="text-sm text-gray-400">${formatDate(date.event_datetime)}</p><h2 class="text-2xl font-bold text-gray-800 mt-1">${date.title}</h2><p class="text-sm text-gray-500 mt-1">ชวนโดย: ${date.creator_name}</p><p class="text-gray-600 mt-2">${date.description || ''}</p>${getResponseNoteHTML(date)}</div><div class="mt-4 flex justify-between items-center"><div>${responseButtons}</div><div>${getStatusBadge(date.status)}</div></div></div>`;
+                const dateCard = `<div class="relative bg-white p-6 rounded-2xl shadow-md border-l-4 ${date.status === 'accepted' ? 'border-green-400' : date.status === 'declined' ? 'border-red-400' : 'border-yellow-400'} animate-fade-in flex flex-col"><div class="absolute top-4 right-4 flex space-x-2">${actionButtons}</div><div class="flex-grow"><p class="text-sm text-gray-400">${formatDate(date.event_datetime)}</p><h2 class="text-2xl font-bold text-gray-800 mt-1">${date.title}</h2><p class="text-sm text-gray-500 mt-1">ชวนโดย: ${date.creator_name}</p><p class="text-gray-600 mt-2">${date.description || ''}</p>${getResponseNoteHTML(date)}</div><div class="mt-4 flex justify-between items-center"><div>${responseButtons}</div><div>${getStatusBadge(date.status)}</div></div></div>`;
                 datesList.innerHTML += dateCard;
             });
         };
@@ -282,6 +283,7 @@
             document.getElementById('form-title').textContent = 'แก้ไขนัดหมาย';
             document.getElementById('save-date-button').textContent = 'บันทึกการแก้ไข';
             document.getElementById('creator-name').value = date.creator_name;
+            document.getElementById('creator-name').disabled = true; // ไม่ให้เปลี่ยนคนชวนตอนแก้ไข
             document.getElementById('title').value = date.title;
             document.getElementById('description').value = date.description;
             const localDateTime = new Date(new Date(date.event_datetime).getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
@@ -294,12 +296,22 @@
         window.changeTab = (tabName) => { activeTab = tabName; currentPage = 0; fetchAndRenderDates(); };
         window.changePage = (direction) => { currentPage += direction; fetchAndRenderDates(); };
 
+        // ✅ ฟังก์ชัน handleResponse ที่ปลอดภัยยิ่งขึ้น
         window.handleResponse = async (dateId, accepted) => {
-            let updateData = { status: accepted ? 'accepted' : 'declined' };
             const promptMessage = accepted ? "ส่งข้อความน่ารักๆ ตอบกลับไปสิ:" : "หากต้องการ โปรดระบุเหตุผลที่ปฏิเสธ:";
             const defaultText = accepted ? "ได้สิจ๊ะที่รัก! 🥰" : "";
             const note = prompt(promptMessage, defaultText);
-            if (note !== null) { updateData.response_note = note; }
+            
+            // ถ้าผู้ใช้กด Cancel (note เป็น null) จะไม่ทำอะไรเลย
+            if (note === null) {
+                return; 
+            }
+
+            let updateData = { 
+                status: accepted ? 'accepted' : 'declined',
+                response_note: note 
+            };
+            
             const { error } = await db.from('sweet_dates').update(updateData).match({ id: dateId });
             if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); }
             else { await updateTabCounts(); fetchAndRenderDates(); }
@@ -359,6 +371,7 @@
             document.getElementById('editing-date-id').value = '';
             document.getElementById('form-title').textContent = 'สร้างนัดหมายใหม่';
             document.getElementById('save-date-button').textContent = 'ส่งคำเชิญ';
+            document.getElementById('creator-name').disabled = false;
             newDateFormContainer.classList.remove('hidden');
             showFormButton.classList.add('hidden');
         });
@@ -393,17 +406,7 @@
                  saveButton.textContent = isEditing ? 'บันทึกการแก้ไข' : 'ส่งคำเชิญ';
                  return;
             }
-
-            const inviteeName = creatorName === 'Pui' ? 'Noon' : 'Pui';
-            const inviteeId = USER_IDS[inviteeName];
-
-            if (!isEditing && currentUser.id === inviteeId) {
-                alert('ไม่สามารถส่งคำเชิญหาตัวเองได้ กรุณาเลือกชื่อให้ถูกต้อง');
-                saveButton.disabled = false;
-                saveButton.textContent = 'ส่งคำเชิญ';
-                return;
-            }
-
+            
             const dateData = {
                 creator_name: creatorName,
                 title: document.getElementById('title').value,
@@ -412,6 +415,14 @@
             };
 
             if (!isEditing) {
+                const inviteeName = creatorName === 'Pui' ? 'Noon' : 'Pui';
+                const inviteeId = USER_IDS[inviteeName];
+                if (currentUser.id === inviteeId) {
+                    alert('ไม่สามารถส่งคำเชิญหาตัวเองได้ กรุณาเลือกชื่อให้ถูกต้อง');
+                    saveButton.disabled = false;
+                    saveButton.textContent = 'ส่งคำเชิญ';
+                    return;
+                }
                 dateData.creator_id = currentUser.id;
                 dateData.invitee_id = inviteeId;
                 dateData.status = 'pending';
@@ -440,6 +451,7 @@
             saveButton.disabled = false;
             document.getElementById('editing-date-id').value = '';
             document.getElementById('form-title').textContent = 'สร้างนัดหมายใหม่';
+            document.getElementById('creator-name').disabled = false;
             saveButton.textContent = 'ส่งคำเชิญ';
         });
         
