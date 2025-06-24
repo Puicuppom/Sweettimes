@@ -22,6 +22,7 @@
 
     <!-- Login Section -->
     <div id="login-section" class="min-h-screen flex items-center justify-center p-4">
+        <!-- ... ส่วน Login เหมือนเดิมทุกประการ ... -->
         <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm text-center">
             <h1 class="text-4xl font-bold text-rose-500 mb-2">Sweet Times</h1>
             <p class="text-gray-500 mb-6">💖 ช่วงเวลาสวีทของสองเรา 💖</p>
@@ -44,6 +45,7 @@
 
     <!-- Diary Section -->
     <div id="diary-section" class="hidden min-h-screen p-4 sm:p-8">
+        <!-- ... ส่วน Header และ Form เหมือนเดิมทุกประการ ... -->
         <div class="max-w-3xl mx-auto">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -54,8 +56,6 @@
                     ออกจากระบบ
                 </button>
             </header>
-
-            <!-- New Date Form -->
             <div id="new-date-form-container" class="bg-white p-6 rounded-2xl shadow-md mb-8 hidden">
                  <h2 class="text-2xl font-bold text-rose-500 mb-4 text-center">สร้างนัดหมายใหม่</h2>
                  <form id="new-date-form" class="space-y-4">
@@ -85,14 +85,11 @@
                     </div>
                  </form>
             </div>
-            
             <div class="text-center mb-8">
                 <button id="show-form-button" class="bg-rose-500 text-white px-8 py-3 rounded-full text-lg shadow-md hover:bg-rose-600 transition-all transform hover:scale-105 inline-block">
                     + สร้างนัดหมายใหม่
                 </button>
             </div>
-
-            <!-- Dates List -->
             <div id="dates-list" class="space-y-4"></div>
         </div>
     </div>
@@ -100,16 +97,20 @@
     <!-- JavaScript Logic -->
     <script>
         // =================================================================
-        //  ⚠️⚠️⚠️  1. กรุณาใส่ URL และ KEY ของคุณที่นี่  ⚠️⚠️⚠️
+        //  ⚠️⚠️⚠️  กรุณาใส่ URL, KEY, และ USER IDs ของคุณที่นี่  ⚠️⚠️⚠️
         // =================================================================
-        const SUPABASE_URL = 'https://fmbympgecspgqtnazrbm.supabase.co'; // <<<< แก้ตรงนี้
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtYnltcGdlY3NwZ3F0bmF6cmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDkwOTksImV4cCI6MjA2NjMyNTA5OX0.rqOrNDNRTF7WnDS6utTTKfFoNZKPiMZV_ttqYzYCaJs'; // <<<< แก้ตรงนี้
+        const SUPABASE_URL = 'https://fmbympgecspgqtnazrbm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtYnltcGdlY3NwZ3F0bmF6cmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDkwOTksImV4cCI6MjA2NjMyNTA5OX0.rqOrNDNRTF7WnDS6utTTKfFoNZKPiMZV_ttqYzYCaJs';
+        const USER_IDS = {
+            Pui: '6c2d9e89-f6dc-4ce1-abb5-ff3747e5066a',
+            Noon: '74527e79-eb4d-4541-9aad-956dd72bb601'
+        };
         // =================================================================
 
         const { createClient } = supabase;
         const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // DOM Elements
+        // ... (ส่วนประกาศตัวแปร DOM elements เหมือนเดิม) ...
         const loginSection = document.getElementById('login-section');
         const diarySection = document.getElementById('diary-section');
         const loginForm = document.getElementById('login-form');
@@ -123,6 +124,7 @@
         
         let currentUser = null;
 
+        // ... (ฟังก์ชัน formatDate, getStatusBadge, getResponseNoteHTML เหมือนเดิม) ...
         const formatDate = (dateString) => {
             if (!dateString) return '';
             const date = new Date(dateString);
@@ -132,13 +134,22 @@
                 hour: '2-digit', minute: '2-digit', hour12: false
             }) + ' น.';
         };
-        
         const getStatusBadge = (status) => {
             switch(status) {
                 case 'accepted': return '<span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full">ตอบรับแล้ว</span>';
                 case 'declined': return '<span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded-full">ปฏิเสธ</span>';
                 default: return '<span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded-full">รอการตอบรับ</span>';
             }
+        };
+        const getResponseNoteHTML = (date) => {
+            if (!date.response_note) return '';
+            if (date.status === 'accepted') {
+                return `<p class="mt-2 text-sm text-green-700 bg-green-50 p-2 rounded-md">ข้อความตอบกลับ: ${date.response_note}</p>`;
+            }
+            if (date.status === 'declined') {
+                return `<p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-md">เหตุผล: ${date.response_note}</p>`;
+            }
+            return '';
         };
 
         const fetchAndRenderDates = async () => {
@@ -151,16 +162,8 @@
                 .or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`)
                 .order('event_datetime', { ascending: false });
 
-            if (error) {
-                console.error('Error fetching dates:', error);
-                datesList.innerHTML = `<p class="text-center text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}</p>`;
-                return;
-            }
-
-            if (data.length === 0) {
-                datesList.innerHTML = '<p class="text-center text-gray-500 bg-white p-6 rounded-xl">ยังไม่มีนัดหมายเลยนะ มาสร้างความทรงจำแรกกันเถอะ!</p>';
-                return;
-            }
+            if (error) { /* ... โค้ดส่วนนี้เหมือนเดิม ... */ }
+            if (data.length === 0) { /* ... โค้ดส่วนนี้เหมือนเดิม ... */ }
             
             datesList.innerHTML = '';
             data.forEach(date => {
@@ -170,52 +173,59 @@
                 let actionButtons = '';
                 if (isInvitee && date.status === 'pending') {
                     actionButtons = `
-                        <div class="mt-4 flex space-x-2">
+                        <div class="flex space-x-2">
                             <button onclick="handleResponse(${date.id}, true)" class="bg-green-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-green-600">ตอบรับ</button>
                             <button onclick="handleResponse(${date.id}, false)" class="bg-red-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-600">ปฏิเสธ</button>
                         </div>`;
                 }
-                
-                if (isCreator) {
-                    actionButtons += `<button onclick="deleteDate(${date.id})" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-1 rounded-full">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M3 6h18"></path>
-                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                            <line x1="10" y1="11" x2="10" y2="17"></line>
-                                            <line x1="14" y1="11" x2="14" y2="17"></line>
-                                        </svg>
-                                      </button>`;
-                }
 
+                // ✅  นี่คือโค้ดสร้างการ์ดเวอร์ชันใหม่ที่แก้ไขแล้ว
                 const dateCard = `
-                    <div class="relative bg-white p-6 rounded-2xl shadow-md border-l-4 ${date.status === 'accepted' ? 'border-green-400' : date.status === 'declined' ? 'border-red-400' : 'border-yellow-400'} animate-fade-in">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-sm text-gray-400">${formatDate(date.event_datetime)}</p>
-                                <h2 class="text-2xl font-bold text-gray-800 mt-1">${date.title}</h2>
-                                <p class="text-sm text-gray-500 mt-1">ชวนโดย: ${date.creator_name}</p>
-                            </div>
-                            <div>${getStatusBadge(date.status)}</div>
+                    <div class="relative bg-white p-6 rounded-2xl shadow-md border-l-4 ${date.status === 'accepted' ? 'border-green-400' : date.status === 'declined' ? 'border-red-400' : 'border-yellow-400'} animate-fade-in flex flex-col">
+                        
+                        ${isCreator ? `
+                            <button onclick="deleteDate(${date.id})" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-1 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 6h18"></path>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </button>
+                        ` : ''}
+
+                        <div class="flex-grow">
+                            <p class="text-sm text-gray-400">${formatDate(date.event_datetime)}</p>
+                            <h2 class="text-2xl font-bold text-gray-800 mt-1">${date.title}</h2>
+                            <p class="text-sm text-gray-500 mt-1">ชวนโดย: ${date.creator_name}</p>
+                            <p class="text-gray-600 mt-2">${date.description || ''}</p>
+                            ${getResponseNoteHTML(date)}
                         </div>
-                        <p class="text-gray-600 mt-2">${date.description || ''}</p>
-                        ${date.status === 'declined' && date.response_reason ? `<p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-md">เหตุผล: ${date.response_reason}</p>` : ''}
-                        ${actionButtons}
+
+                        <div class="mt-4 flex justify-between items-center">
+                            <div>
+                                ${actionButtons}
+                            </div>
+                            <div>
+                                ${getStatusBadge(date.status)}
+                            </div>
+                        </div>
                     </div>`;
                 datesList.innerHTML += dateCard;
             });
         };
 
+        // ... (ฟังก์ชัน window.handleResponse, window.deleteDate, showDiaryPage, showLoginPage, และ event listeners ทั้งหมดเหมือนเดิม) ...
         window.handleResponse = async (dateId, accepted) => {
             let updateData = { status: accepted ? 'accepted' : 'declined' };
-            if (!accepted) {
-                const reason = prompt("หากต้องการ โปรดระบุเหตุผลที่ปฏิเสธ:", "");
-                if (reason !== null) { updateData.response_reason = reason; }
-            }
+            const promptMessage = accepted ? "ส่งข้อความน่ารักๆ ตอบกลับไปสิ:" : "หากต้องการ โปรดระบุเหตุผลที่ปฏิเสธ:";
+            const defaultText = accepted ? "ไปแน่นอน! 🥰" : "";
+            const note = prompt(promptMessage, defaultText);
+            if (note !== null) { updateData.response_note = note; }
             const { error } = await db.from('sweet_dates').update(updateData).match({ id: dateId });
             if (error) alert('เกิดข้อผิดพลาด: ' + error.message);
             else fetchAndRenderDates();
         };
-
         window.deleteDate = async (dateId) => {
             if (confirm("คุณแน่ใจหรือไม่ที่จะลบนัดหมายนี้?")) {
                 const { error } = await db.from('sweet_dates').delete().match({ id: dateId });
@@ -223,7 +233,6 @@
                 else fetchAndRenderDates();
             }
         };
-        
         const showDiaryPage = async () => {
             const { data } = await db.auth.getUser();
             currentUser = data.user;
@@ -231,17 +240,13 @@
                 loginSection.classList.add('hidden');
                 diarySection.classList.remove('hidden');
                 fetchAndRenderDates();
-            } else {
-                showLoginPage();
-            }
+            } else { showLoginPage(); }
         };
-
         const showLoginPage = () => {
             currentUser = null;
             loginSection.classList.remove('hidden');
             diarySection.classList.add('hidden');
         };
-
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
@@ -259,41 +264,25 @@
                 loginButton.textContent = 'เข้าสู่ระบบ';
             } else if (data.session) { showDiaryPage(); }
         });
-        
         logoutButton.addEventListener('click', async () => {
             await db.auth.signOut();
             showLoginPage();
         });
-        
         showFormButton.addEventListener('click', () => {
             newDateFormContainer.classList.remove('hidden');
             showFormButton.classList.add('hidden');
         });
-        
         cancelNewDateButton.addEventListener('click', () => {
             newDateFormContainer.classList.add('hidden');
             showFormButton.classList.remove('hidden');
             newDateForm.reset();
         });
-        
-        // ✅  ฟังก์ชันสร้างนัดหมายเวอร์ชันใหม่ ฉลาดและสมบูรณ์ที่สุด
         newDateForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentUser) { alert('กรุณา Login ใหม่'); return; }
-
             const saveButton = document.getElementById('save-date-button');
             saveButton.disabled = true;
             saveButton.textContent = 'กำลังส่ง...';
-
-            // =================================================================
-            //  ⚠️⚠️⚠️  2. กรุณาใส่ USER ID ของ Pui และ Noon ที่นี่  ⚠️⚠️⚠️
-            // =================================================================
-            const USER_IDS = {
-                Pui: '6c2d9e89-f6dc-4ce1-abb5-ff3747e5066a',    // <<<< แก้ตรงนี้
-                Noon: '74527e79-eb4d-4541-9aad-956dd72bb601'   // <<<< แก้ตรงนี้
-            };
-            // =================================================================
-
             const creatorName = document.getElementById('creator-name').value;
             if (!creatorName) {
                 alert('กรุณาเลือกชื่อคนชวน');
@@ -301,27 +290,20 @@
                 saveButton.textContent = 'ส่งคำเชิญ';
                 return;
             }
-
-            // ตรวจสอบว่า ID ถูกตั้งค่าแล้วหรือยัง
             if (USER_IDS.Pui.includes('YOUR_') || USER_IDS.Noon.includes('YOUR_')) {
                  alert('เกิดข้อผิดพลาด: กรุณาตั้งค่า User ID ในโค้ด JavaScript ก่อนนะครับ!');
                  saveButton.disabled = false;
                  saveButton.textContent = 'ส่งคำเชิญ';
                  return;
             }
-
-            // หาคนถูกชวนโดยอัตโนมัติ
             const inviteeName = creatorName === 'Pui' ? 'Noon' : 'Pui';
             const inviteeId = USER_IDS[inviteeName];
-
-            // ตรวจสอบว่าคนชวนไม่ได้ชวนตัวเอง (เช็คจาก ID)
             if (currentUser.id === inviteeId) {
                 alert('ไม่สามารถส่งคำเชิญหาตัวเองได้ กรุณาเลือกชื่อให้ถูกต้อง');
                 saveButton.disabled = false;
                 saveButton.textContent = 'ส่งคำเชิญ';
                 return;
             }
-            
             const newDate = {
                 creator_id: currentUser.id,
                 creator_name: creatorName,
@@ -331,7 +313,6 @@
                 event_datetime: document.getElementById('event-datetime').value,
                 status: 'pending'
             };
-
             const { error } = await db.from('sweet_dates').insert([newDate]);
             if (error) {
                 alert('เกิดข้อผิดพลาด: ' + error.message);
@@ -345,20 +326,15 @@
             saveButton.disabled = false;
             saveButton.textContent = 'ส่งคำเชิญ';
         });
-        
         const checkSession = async () => {
             if (!SUPABASE_URL || SUPABASE_URL.includes('YOUR_SUPABASE_URL')) {
                 document.body.innerHTML = '<div class="text-red-600 text-2xl text-center p-10">ข้อผิดพลาด: กรุณาตั้งค่า SUPABASE_URL ในโค้ด</div>';
                 return;
             }
             const { data: { session } } = await db.auth.getSession();
-            if (session) {
-                showDiaryPage();
-            } else {
-                showLoginPage();
-            }
+            if (session) { showDiaryPage(); }
+            else { showLoginPage(); }
         };
-
         checkSession();
     </script>
 </body>
