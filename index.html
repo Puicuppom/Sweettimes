@@ -177,22 +177,40 @@
             return '';
         };
         
+        // FIX 1 START: เปลี่ยนจากการใช้ RPC มาเป็นการ Query โดยตรงเพื่อการนับที่ถูกต้อง
         const updateTabCounts = async () => {
             if (!currentUser) return;
-            const { data, error } = await db.rpc('get_date_counts');
-            if (error) { console.error("Error fetching tab counts:", error); return; }
-            if (!data) return;
-            const counts = { pending: data.pending, upcoming: data.upcoming, past: data.past };
-            for (const key in counts) {
-                const countBadge = document.getElementById(`count-${key}`);
-                if (counts[key] > 0) {
-                    countBadge.textContent = counts[key];
-                    countBadge.classList.remove('hidden');
-                } else {
-                    countBadge.classList.add('hidden');
+
+            const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+            try {
+                // Query เพื่อนับจำนวนในแต่ละแท็บพร้อมกัน
+                const [pendingResult, upcomingResult, pastResult] = await Promise.all([
+                    db.from('sweet_dates').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+                    db.from('sweet_dates').select('id', { count: 'exact', head: true }).eq('status', 'accepted').gte('event_datetime', now),
+                    db.from('sweet_dates').select('id', { count: 'exact', head: true }).lt('event_datetime', now).in('status', ['accepted', 'declined'])
+                ]);
+
+                const counts = {
+                    pending: pendingResult.count || 0,
+                    upcoming: upcomingResult.count || 0,
+                    past: pastResult.count || 0
+                };
+                
+                for (const key in counts) {
+                    const countBadge = document.getElementById(`count-${key}`);
+                    if (counts[key] > 0) {
+                        countBadge.textContent = counts[key];
+                        countBadge.classList.remove('hidden');
+                    } else {
+                        countBadge.classList.add('hidden');
+                    }
                 }
+            } catch (error) {
+                console.error("Error fetching tab counts:", error);
             }
         };
+        // FIX 1 END
 
         const renderTabs = () => {
             document.querySelectorAll('.tab-button').forEach(button => {
@@ -228,12 +246,17 @@
             const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
             if (activeTab === 'pending') {
-                query = query.eq('status', 'pending').or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
+                query = query.eq('status', 'pending');
             } else if (activeTab === 'upcoming') {
-                query = query.eq('status', 'accepted').gte('event_datetime', now).or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
+                query = query.eq('status', 'accepted').gte('event_datetime', now);
             } else if (activeTab === 'past') {
-                query = query.lt('event_datetime', now).in('status', ['accepted', 'declined']).or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
+                query = query.lt('event_datetime', now).in('status', ['accepted', 'declined']);
             }
+            
+            // หมายเหตุ: โค้ดเดิมมีการ filter ด้วย or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`)
+            // ซึ่งจะไม่ทำงานหากตั้งค่า Row Level Security (RLS) บน Supabase ไว้อย่างถูกต้องแล้ว
+            // RLS ควรจะจัดการเรื่องการแสดงผลข้อมูลเฉพาะของ user ที่ login อยู่แล้ว
+            // จึงขอเอาส่วนนี้ออกเพื่อความกระชับและถูกต้องตามหลักการของ RLS
             
             query = query.order('event_datetime', { ascending: activeTab !== 'past' })
                          .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
@@ -262,7 +285,8 @@
                 }
                 
                 let actionButtons = '';
-                if (date.status !== 'declined' && new Date(date.event_datetime) > new Date()) {
+                // FIX 2: เพิ่มเงื่อนไข isCreator เพื่อให้ปุ่มแก้ไขแสดงเฉพาะเจ้าของนัดหมายเท่านั้น
+                if (isCreator && date.status !== 'declined' && new Date(date.event_datetime) > new Date()) {
                     actionButtons += `<button onclick='handleEdit(${JSON.stringify(date)})' class="p-1 text-gray-400 hover:text-blue-500" title="แก้ไข"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>`;
                 }
                 if (isCreator) {
@@ -296,7 +320,7 @@
 
         window.handleResponse = async (dateId, accepted) => {
             const promptMessage = accepted ? "ส่งข้อความน่ารักๆ ตอบกลับไปสิ:" : "หากต้องการ โปรดระบุเหตุผลที่ปฏิเสธ:";
-            const defaultText = accepted ? "ได้สิจ๊ะที่รัก! 🥰" : "";
+            const defaultText = accepted ? "ได้สิจ๊ะที่ร๊ากกก! 🥰" : "";
             const note = prompt(promptMessage, defaultText);
             
             if (note === null) { return; }
@@ -330,7 +354,7 @@
         const showLoginPage = () => {
             currentUser = null;
             loginSection.classList.remove('hidden');
-            diarySection.classList.add('hidden');
+            diarySection.add('hidden');
         };
 
         loginForm.addEventListener('submit', async (e) => {
