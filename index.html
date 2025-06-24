@@ -96,7 +96,7 @@
             <div class="mb-6 border-b border-gray-200">
                 <nav class="-mb-px flex space-x-6" aria-label="Tabs">
                     <button id="tab-pending" onclick="changeTab('pending')" class="tab-button flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
-                        <span>รอเราตอบรับ</span>
+                        <span>รอการตอบรับ</span>
                         <span id="count-pending" class="ml-2 bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full hidden">0</span>
                     </button>
                     <button id="tab-upcoming" onclick="changeTab('upcoming')" class="tab-button flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
@@ -129,11 +129,11 @@
         // =================================================================
         //  ⚠️⚠️⚠️  กรุณาใส่ URL, KEY, และ USER IDs ของคุณที่นี่  ⚠️⚠️⚠️
         // =================================================================
-        const SUPABASE_URL = 'https://fmbympgecspgqtnazrbm.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtYnltcGdlY3NwZ3F0bmF6cmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDkwOTksImV4cCI6MjA2NjMyNTA5OX0.rqOrNDNRTF7WnDS6utTTKfFoNZKPiMZV_ttqYzYCaJs';
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
         const USER_IDS = {
-            Pui: '6c2d9e89-f6dc-4ce1-abb5-ff3747e5066a',
-            Noon: '74527e79-eb4d-4541-9aad-956dd72bb601'
+            Pui: 'YOUR_PUI_USER_ID_HERE',
+            Noon: 'YOUR_NOON_USER_ID_HERE'
         };
         // =================================================================
         
@@ -227,12 +227,16 @@
             let query = db.from('sweet_dates').select('*', { count: 'exact' });
             const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
+            // ✅ ตรรกะการดึงข้อมูลฉบับแก้ไข
             if (activeTab === 'pending') {
-                query = query.eq('invitee_id', currentUser.id).eq('status', 'pending');
+                query = query.eq('status', 'pending')
+                             .or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
             } else if (activeTab === 'upcoming') {
-                query = query.eq('status', 'accepted').gte('event_datetime', now).or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
+                query = query.eq('status', 'accepted').gte('event_datetime', now)
+                             .or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
             } else if (activeTab === 'past') {
-                query = query.lt('event_datetime', now).or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
+                query = query.lt('event_datetime', now)
+                             .or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
             }
             
             query = query.order('event_datetime', { ascending: activeTab !== 'past' })
@@ -296,19 +300,19 @@
         window.handleResponse = async (dateId, accepted) => {
             let updateData = { status: accepted ? 'accepted' : 'declined' };
             const promptMessage = accepted ? "ส่งข้อความน่ารักๆ ตอบกลับไปสิ:" : "หากต้องการ โปรดระบุเหตุผลที่ปฏิเสธ:";
-            const defaultText = accepted ? "ได้สิที่รัก! 🥰" : "";
+            const defaultText = accepted ? "ไปแน่นอน! 🥰" : "";
             const note = prompt(promptMessage, defaultText);
             if (note !== null) { updateData.response_note = note; }
             const { error } = await db.from('sweet_dates').update(updateData).match({ id: dateId });
             if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); }
-            else { updateTabCounts(); fetchAndRenderDates(); }
+            else { await updateTabCounts(); fetchAndRenderDates(); }
         };
 
         window.deleteDate = async (dateId) => {
             if (confirm("คุณแน่ใจหรือไม่ที่จะลบนัดหมายนี้?")) {
                 const { error } = await db.from('sweet_dates').delete().match({ id: dateId });
                 if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); }
-                else { updateTabCounts(); fetchAndRenderDates(); }
+                else { await updateTabCounts(); fetchAndRenderDates(); }
             }
         };
         
