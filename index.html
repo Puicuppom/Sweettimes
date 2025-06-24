@@ -102,8 +102,8 @@
         // =================================================================
         //  ⚠️⚠️⚠️  1. กรุณาใส่ URL และ KEY ของคุณที่นี่  ⚠️⚠️⚠️
         // =================================================================
-        const SUPABASE_URL = 'https://fmbympgecspgqtnazrbm.supabase.co'; // <<<< แก้ตรงนี้
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtYnltcGdlY3NwZ3F0bmF6cmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDkwOTksImV4cCI6MjA2NjMyNTA5OX0.rqOrNDNRTF7WnDS6utTTKfFoNZKPiMZV_ttqYzYCaJs'; // <<<< แก้ตรงนี้
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // <<<< แก้ตรงนี้
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // <<<< แก้ตรงนี้
         // =================================================================
 
         const { createClient } = supabase;
@@ -177,7 +177,6 @@
                 }
                 
                 if (isCreator) {
-                    //  ✅  โค้ดปุ่มลบที่แก้ไขแล้ว ใช้ SVG แทน
                     actionButtons += `<button onclick="deleteDate(${date.id})" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-1 rounded-full">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M3 6h18"></path>
@@ -248,27 +247,17 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const loginButton = document.getElementById('login-button');
-            
             loginButton.disabled = true;
             loginButton.textContent = 'กำลังเข้าสู่ระบบ...';
             errorMessage.classList.add('hidden');
-
             const { data, error } = await db.auth.signInWithPassword({ email, password });
-
             if (error) {
                 console.error("Login Error:", error);
                 errorMessage.textContent = `Login ไม่สำเร็จ: ${error.message}`;
                 errorMessage.classList.remove('hidden');
                 loginButton.disabled = false;
                 loginButton.textContent = 'เข้าสู่ระบบ';
-            } else if (data.session) {
-                showDiaryPage();
-            } else {
-                errorMessage.textContent = 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง';
-                errorMessage.classList.remove('hidden');
-                loginButton.disabled = false;
-                loginButton.textContent = 'เข้าสู่ระบบ';
-            }
+            } else if (data.session) { showDiaryPage(); }
         });
         
         logoutButton.addEventListener('click', async () => {
@@ -287,6 +276,7 @@
             newDateForm.reset();
         });
         
+        // ✅  ฟังก์ชันสร้างนัดหมายเวอร์ชันใหม่ ฉลาดและสมบูรณ์ที่สุด
         newDateForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentUser) { alert('กรุณา Login ใหม่'); return; }
@@ -299,8 +289,8 @@
             //  ⚠️⚠️⚠️  2. กรุณาใส่ USER ID ของ Pui และ Noon ที่นี่  ⚠️⚠️⚠️
             // =================================================================
             const USER_IDS = {
-                Pui: '6c2d9e89-f6dc-4ce1-abb5-ff3747e5066a',    // <<<< แก้ตรงนี้
-                Noon: '74527e79-eb4d-4541-9aad-956dd72bb601'   // <<<< แก้ตรงนี้
+                Pui: 'YOUR_PUI_USER_ID_HERE',    // <<<< แก้ตรงนี้
+                Noon: 'YOUR_NOON_USER_ID_HERE'   // <<<< แก้ตรงนี้
             };
             // =================================================================
 
@@ -312,14 +302,24 @@
                 return;
             }
 
-            const inviteeName = creatorName === 'Pui' ? 'Noon' : 'Pui';
-            const inviteeId = USER_IDS[inviteeName];
-
-            if (!inviteeId || inviteeId.includes('YOUR')) {
+            // ตรวจสอบว่า ID ถูกตั้งค่าแล้วหรือยัง
+            if (USER_IDS.Pui.includes('YOUR_') || USER_IDS.Noon.includes('YOUR_')) {
                  alert('เกิดข้อผิดพลาด: กรุณาตั้งค่า User ID ในโค้ด JavaScript ก่อนนะครับ!');
                  saveButton.disabled = false;
                  saveButton.textContent = 'ส่งคำเชิญ';
                  return;
+            }
+
+            // หาคนถูกชวนโดยอัตโนมัติ
+            const inviteeName = creatorName === 'Pui' ? 'Noon' : 'Pui';
+            const inviteeId = USER_IDS[inviteeName];
+
+            // ตรวจสอบว่าคนชวนไม่ได้ชวนตัวเอง (เช็คจาก ID)
+            if (currentUser.id === inviteeId) {
+                alert('ไม่สามารถส่งคำเชิญหาตัวเองได้ กรุณาเลือกชื่อให้ถูกต้อง');
+                saveButton.disabled = false;
+                saveButton.textContent = 'ส่งคำเชิญ';
+                return;
             }
             
             const newDate = {
