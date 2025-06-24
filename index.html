@@ -95,7 +95,7 @@
             <div class="mb-6 border-b border-gray-200">
                 <nav class="-mb-px flex space-x-6" aria-label="Tabs">
                     <button id="tab-pending" onclick="changeTab('pending')" class="tab-button flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
-                        <span>รอเราตอบรับ</span>
+                        <span>รอการตอบรับ</span>
                         <span id="count-pending" class="ml-2 bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full hidden">0</span>
                     </button>
                     <button id="tab-upcoming" onclick="changeTab('upcoming')" class="tab-button flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
@@ -123,7 +123,7 @@
         </div>
     </div>
 
-    <!-- ✅  JavaScript Logic ทั้งหมดจะอยู่ใน Script Tag เดียวนี้ -->
+    <!-- JavaScript Logic -->
     <script>
         // =================================================================
         //  ⚠️⚠️⚠️  กรุณาใส่ URL, KEY, และ USER IDs ของคุณที่นี่  ⚠️⚠️⚠️
@@ -180,6 +180,7 @@
             if (!currentUser) return;
             const { data, error } = await db.rpc('get_date_counts', { p_user_id: currentUser.id });
             if (error) { console.error("Error fetching tab counts:", error); return; }
+            if (!data) return;
             const counts = { pending: data.pending, upcoming: data.upcoming, past: data.past };
             for (const key in counts) {
                 const countBadge = document.getElementById(`count-${key}`);
@@ -225,12 +226,16 @@
             let query = db.from('sweet_dates').select('*', { count: 'exact' });
             const now = new Date().toISOString();
 
+            // ✅  นี่คือตรรกะของแท็บ "รอการตอบรับ" ที่แก้ไขแล้ว
             if (activeTab === 'pending') {
-                query = query.eq('invitee_id', currentUser.id).eq('status', 'pending');
+                query = query.eq('status', 'pending')
+                             .or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
             } else if (activeTab === 'upcoming') {
-                query = query.eq('status', 'accepted').gte('event_datetime', now).or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
+                query = query.eq('status', 'accepted').gte('event_datetime', now)
+                             .or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
             } else if (activeTab === 'past') {
-                query = query.lt('event_datetime', now).or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
+                query = query.lt('event_datetime', now)
+                             .or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
             }
             
             query = query.order('event_datetime', { ascending: activeTab !== 'past' })
@@ -391,7 +396,8 @@
                 newDateFormContainer.classList.add('hidden');
                 showFormButton.classList.remove('hidden');
                 updateTabCounts();
-                changeTab('upcoming');
+                // ✅ เปลี่ยนไปที่แท็บ "รอการตอบรับ" หลังสร้างเสร็จ
+                changeTab('pending'); 
             }
             saveButton.disabled = false;
             saveButton.textContent = 'ส่งคำเชิญ';
