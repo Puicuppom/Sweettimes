@@ -60,12 +60,12 @@
                  <h2 class="text-2xl font-bold text-rose-500 mb-4 text-center">สร้างนัดหมายใหม่</h2>
                  <form id="new-date-form" class="space-y-4">
                     <div>
-                        <label class="block text-gray-700 mb-1">อีเมลของคนที่คุณจะชวน</label>
-                        <input id="invitee-email" type="email" placeholder="ใส่อีเมลของแฟนคุณ" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400" required />
-                    </div>
-                    <div>
                         <label class="block text-gray-700 mb-1">ชื่อเล่นของคุณ (คนชวน)</label>
-                        <input id="creator-name" type="text" placeholder="เช่น พลอย, แบงค์" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400" required />
+                        <select id="creator-name" class="w-full px-4 py-2 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-rose-400" required>
+                            <option value="" disabled selected>-- กรุณาเลือกชื่อของคุณ --</option>
+                            <option value="Pui">Pui 👱‍♀️</option>
+                            <option value="Noon">Noon 👱‍♂️</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-gray-700 mb-1">หัวข้อนัดหมาย</label>
@@ -99,9 +99,13 @@
 
     <!-- JavaScript Logic -->
     <script>
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-        
+        // =================================================================
+        //  ⚠️⚠️⚠️  1. กรุณาใส่ URL และ KEY ของคุณที่นี่  ⚠️⚠️⚠️
+        // =================================================================
+        const SUPABASE_URL = 'https://fmbympgecspgqtnazrbm.supabase.co'; // <<<< แก้ตรงนี้
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtYnltcGdlY3NwZ3F0bmF6cmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDkwOTksImV4cCI6MjA2NjMyNTA5OX0.rqOrNDNRTF7WnDS6utTTKfFoNZKPiMZV_ttqYzYCaJs'; // <<<< แก้ตรงนี้
+        // =================================================================
+
         const { createClient } = supabase;
         const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -109,6 +113,7 @@
         const loginSection = document.getElementById('login-section');
         const diarySection = document.getElementById('diary-section');
         const loginForm = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
         const logoutButton = document.getElementById('logout-button');
         const datesList = document.getElementById('dates-list');
         const showFormButton = document.getElementById('show-form-button');
@@ -119,6 +124,7 @@
         let currentUser = null;
 
         const formatDate = (dateString) => {
+            if (!dateString) return '';
             const date = new Date(dateString);
             return date.toLocaleDateString('th-TH', {
                 year: 'numeric', month: 'long', day: 'numeric'
@@ -139,7 +145,6 @@
             if (!currentUser) return;
             datesList.innerHTML = '<p class="text-center text-gray-500">กำลังโหลดความทรงจำ... 💖</p>';
             
-            // ดึงข้อมูลนัดหมายที่เกี่ยวข้องกับเรา (ทั้งที่เราสร้างและถูกชวน)
             const { data, error } = await db
                 .from('sweet_dates')
                 .select('*')
@@ -148,7 +153,7 @@
 
             if (error) {
                 console.error('Error fetching dates:', error);
-                datesList.innerHTML = '<p class="text-center text-red-500">เกิดข้อผิดพลาด</p>';
+                datesList.innerHTML = `<p class="text-center text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}</p>`;
                 return;
             }
 
@@ -163,21 +168,16 @@
                 const isInvitee = date.invitee_id === currentUser.id;
                 
                 let actionButtons = '';
-                // ถ้าเราเป็นคนถูกชวน และนัดยังรอการตอบรับ
                 if (isInvitee && date.status === 'pending') {
                     actionButtons = `
                         <div class="mt-4 flex space-x-2">
                             <button onclick="handleResponse(${date.id}, true)" class="bg-green-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-green-600">ตอบรับ</button>
                             <button onclick="handleResponse(${date.id}, false)" class="bg-red-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-600">ปฏิเสธ</button>
-                        </div>
-                    `;
+                        </div>`;
                 }
                 
-                // ถ้าเราเป็นคนสร้าง
                 if (isCreator) {
-                     actionButtons += `
-                        <button onclick="deleteDate(${date.id})" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"></button>
-                     `;
+                     actionButtons += `<button onclick="deleteDate(${date.id})" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-lg"></button>`;
                 }
 
                 const dateCard = `
@@ -193,8 +193,7 @@
                         <p class="text-gray-600 mt-2">${date.description || ''}</p>
                         ${date.status === 'declined' && date.response_reason ? `<p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-md">เหตุผล: ${date.response_reason}</p>` : ''}
                         ${actionButtons}
-                    </div>
-                `;
+                    </div>`;
                 datesList.innerHTML += dateCard;
             });
         };
@@ -203,11 +202,8 @@
             let updateData = { status: accepted ? 'accepted' : 'declined' };
             if (!accepted) {
                 const reason = prompt("หากต้องการ โปรดระบุเหตุผลที่ปฏิเสธ:", "");
-                if (reason !== null) { // ถ้าผู้ใช้ไม่กดยกเลิก
-                    updateData.response_reason = reason;
-                }
+                if (reason !== null) { updateData.response_reason = reason; }
             }
-
             const { error } = await db.from('sweet_dates').update(updateData).match({ id: dateId });
             if (error) alert('เกิดข้อผิดพลาด: ' + error.message);
             else fetchAndRenderDates();
@@ -220,13 +216,17 @@
                 else fetchAndRenderDates();
             }
         };
-
+        
         const showDiaryPage = async () => {
             const { data } = await db.auth.getUser();
             currentUser = data.user;
-            loginSection.classList.add('hidden');
-            diarySection.classList.remove('hidden');
-            fetchAndRenderDates();
+            if (currentUser) {
+                loginSection.classList.add('hidden');
+                diarySection.classList.remove('hidden');
+                fetchAndRenderDates();
+            } else {
+                showLoginPage(); // ถ้าหา user ไม่เจอ ให้กลับไปหน้า login
+            }
         };
 
         const showLoginPage = () => {
@@ -239,12 +239,27 @@
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const { error } = await db.auth.signInWithPassword({ email, password });
+            const loginButton = document.getElementById('login-button');
+            
+            loginButton.disabled = true;
+            loginButton.textContent = 'กำลังเข้าสู่ระบบ...';
+            errorMessage.classList.add('hidden');
+
+            const { data, error } = await db.auth.signInWithPassword({ email, password });
+
             if (error) {
-                document.getElementById('error-message').textContent = 'อุ๊ปส์! อีเมลหรือรหัสผ่านไม่ถูกต้องนะ';
-                document.getElementById('error-message').classList.remove('hidden');
-            } else {
+                console.error("Login Error:", error);
+                errorMessage.textContent = `Login ไม่สำเร็จ: ${error.message}`;
+                errorMessage.classList.remove('hidden');
+                loginButton.disabled = false;
+                loginButton.textContent = 'เข้าสู่ระบบ';
+            } else if (data.session) {
                 showDiaryPage();
+            } else {
+                errorMessage.textContent = 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง';
+                errorMessage.classList.remove('hidden');
+                loginButton.disabled = false;
+                loginButton.textContent = 'เข้าสู่ระบบ';
             }
         });
         
@@ -268,49 +283,66 @@
             e.preventDefault();
             if (!currentUser) { alert('กรุณา Login ใหม่'); return; }
 
-            // หา invitee_id จากอีเมล
-            const inviteeEmail = document.getElementById('invitee-email').value;
-            // เนื่องจากเราไม่มีตาราง profiles เราจึงไม่สามารถหา id จาก email ได้โดยตรง
-            // **แนวทางแก้ไขอย่างง่าย:** เราต้องรู้ ID ของแฟนเราล่วงหน้า หรือปรับโครงสร้าง DB
-            // **แต่สำหรับโปรเจกต์นี้ เราจะสมมติว่าเรารู้ user ID ของแฟน**
-            // **คำเตือน: นี่เป็นวิธีที่ไม่ยืดหยุ่น ควรปรับปรุงในโปรเจกต์จริง**
-            // **คุณต้องไปหา User ID ของแฟนคุณจาก Supabase > Authentication > Users แล้วมาใส่แทนที่ 'USER_ID_OF_YOUR_PARTNER'**
-            
-            // สมมติว่าในระบบมีแค่ 2 user
-            // วิธีนี้ไม่ดีนัก แต่ใช้ได้สำหรับกรณี 2 คน
-            alert("ฟีเจอร์นี้ต้องมีการปรับแก้โค้ดเพื่อใส่ User ID ของแฟนคุณโดยตรง");
-            return; 
+            const saveButton = document.getElementById('save-date-button');
+            saveButton.disabled = true;
+            saveButton.textContent = 'กำลังส่ง...';
 
-            // **โค้ดที่ควรจะเป็น หากเรามีตาราง profiles**
-            /*
-            const { data: inviteeData, error: inviteeError } = await db.from('profiles').select('id').eq('email', inviteeEmail).single();
-            if (inviteeError || !inviteeData) {
-                alert('ไม่พบอีเมลผู้ใช้ที่ต้องการเชิญ!');
+            // =================================================================
+            //  ⚠️⚠️⚠️  2. กรุณาใส่ USER ID ของ Pui และ Noon ที่นี่  ⚠️⚠️⚠️
+            // =================================================================
+            const USER_IDS = {
+                Pui: 'PASTE_PUI_USER_ID_HERE',    // <<<< แก้ตรงนี้
+                Noon: 'PASTE_NOON_USER_ID_HERE'   // <<<< แก้ตรงนี้
+            };
+            // =================================================================
+
+            const creatorName = document.getElementById('creator-name').value;
+            if (!creatorName) {
+                alert('กรุณาเลือกชื่อคนชวน');
+                saveButton.disabled = false;
+                saveButton.textContent = 'ส่งคำเชิญ';
                 return;
             }
 
+            const inviteeName = creatorName === 'Pui' ? 'Noon' : 'Pui';
+            const inviteeId = USER_IDS[inviteeName];
+
+            if (!inviteeId || inviteeId.includes('PASTE')) {
+                 alert('เกิดข้อผิดพลาด: กรุณาตั้งค่า User ID ในโค้ด JavaScript ก่อนนะครับ!');
+                 saveButton.disabled = false;
+                 saveButton.textContent = 'ส่งคำเชิญ';
+                 return;
+            }
+            
             const newDate = {
                 creator_id: currentUser.id,
-                invitee_id: inviteeData.id, // ใช้ id ที่หามาได้
-                creator_name: document.getElementById('creator-name').value,
+                creator_name: creatorName,
+                invitee_id: inviteeId,
                 title: document.getElementById('title').value,
                 description: document.getElementById('description').value,
                 event_datetime: document.getElementById('event-datetime').value,
                 status: 'pending'
             };
-            
+
             const { error } = await db.from('sweet_dates').insert([newDate]);
-            if (error) alert('เกิดข้อผิดพลาด: ' + error.message);
-            else {
+            if (error) {
+                alert('เกิดข้อผิดพลาด: ' + error.message);
+            } else {
                 newDateForm.reset();
                 newDateFormContainer.classList.add('hidden');
                 showFormButton.classList.remove('hidden');
-                fetchAndRenderDates();
+                await fetchAndRenderDates();
             }
-            */
+            saveButton.disabled = false;
+            saveButton.textContent = 'ส่งคำเชิญ';
         });
         
         const checkSession = async () => {
+            // เช็คว่า URL และ Key ถูกต้องหรือไม่
+            if (!SUPABASE_URL || SUPABASE_URL.includes('YOUR_SUPABASE_URL')) {
+                document.body.innerHTML = '<div class="text-red-600 text-2xl text-center p-10">ข้อผิดพลาด: กรุณาตั้งค่า SUPABASE_URL ในโค้ด</div>';
+                return;
+            }
             const { data: { session } } = await db.auth.getSession();
             if (session) {
                 showDiaryPage();
