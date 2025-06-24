@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Secret Diary 💖</title>
+    
+    <!-- 1. ดึงฟอนต์น่ารักๆ จาก Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
+    
+    <!-- 2. ดึง Tailwind CSS ผ่าน CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 3. ดึง Supabase Client ผ่าน CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- 4. กำหนดสไตล์และฟอนต์หลัก -->
+    <style>
+        body {
+            font-family: 'Itim', cursive;
+        }
+    </style>
+</head>
+<body class="bg-pink-50">
+
+    <!-- ส่วนที่ 1: หน้า Login (จะแสดงผลตอนแรก) -->
+    <div id="login-section" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm">
+            <h1 class="text-4xl text-center font-bold text-pink-500 mb-2">Our Secret Diary</h1>
+            <p class="text-center text-gray-500 mb-6">💖 พื้นที่ของเราสองคน 💖</p>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-1" for="email">อีเมล</label>
+                    <input id="email" type="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" required />
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-1" for="password">รหัสผ่าน</label>
+                    <input id="password" type="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" required />
+                </div>
+                <p id="error-message" class="text-red-500 text-center mb-4 hidden"></p>
+                <button type="submit" id="login-button" class="w-full bg-pink-500 text-white py-2 rounded-lg hover:bg-pink-600 transition-colors disabled:bg-pink-300">
+                    เข้าสู่ไดอารี่
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ส่วนที่ 2: หน้า Diary (จะซ่อนไว้ตอนแรก) -->
+    <div id="diary-section" class="hidden min-h-screen p-4 sm:p-8">
+        <div class="max-w-3xl mx-auto">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-4xl font-bold text-pink-500">Our Sweet Diary</h1>
+                    <p class="text-gray-500">บันทึกความทรงจำของเรา</p>
+                </div>
+                <button id="logout-button" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+                    ออกจากระบบ
+                </button>
+            </header>
+
+            <!-- ฟอร์มสร้างนัดหมาย (ซ่อน/แสดงได้) -->
+            <div id="new-date-form-container" class="bg-white p-6 rounded-2xl shadow-md mb-8 hidden">
+                 <h2 class="text-2xl font-bold text-pink-500 mb-4 text-center">สร้างนัดหมายใหม่</h2>
+                 <form id="new-date-form" class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 mb-1">ชื่อเล่นคนชวน</label>
+                        <input id="creator-name" type="text" placeholder="เช่น พลอย, แบงค์" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" required />
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-1">หัวข้อนัดหมาย</label>
+                        <input id="title" type="text" placeholder="เช่น ไปเดทดูดาวกัน! ✨" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" required />
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-1">คำอธิบายเล็กๆ น้อยๆ</label>
+                        <textarea id="description" placeholder="อยากไปนอนดูดาวด้วยกันนะ 😊" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-1">วันและเวลา</label>
+                        <input id="event-datetime" type="datetime-local" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" required />
+                    </div>
+                    <div class="flex items-center justify-end pt-2 space-x-4">
+                         <button type="button" id="cancel-new-date" class="text-gray-600 hover:text-pink-500">ยกเลิก</button>
+                         <button type="submit" id="save-date-button" class="bg-pink-500 text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition-colors">บันทึกนัดหมาย</button>
+                    </div>
+                 </form>
+            </div>
+            
+            <div class="text-center mb-8">
+                <button id="show-form-button" class="bg-pink-500 text-white px-8 py-3 rounded-full text-lg shadow-md hover:bg-pink-600 transition-all transform hover:scale-105 inline-block">
+                    + สร้างนัดหมายใหม่
+                </button>
+            </div>
+
+            <!-- ส่วนแสดงผลนัดหมาย -->
+            <div id="dates-list" class="space-y-4">
+                <!-- ข้อมูลนัดหมายจะถูกใส่ที่นี่โดย JavaScript -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ส่วนที่ 3: โค้ด JavaScript ทั้งหมด -->
+    <script>
+        // =================================================================
+        //  ⚠️⚠️⚠️ ** กรุณาใส่ URL และ KEY ของคุณที่นี่ ** ⚠️⚠️⚠️
+        // =================================================================
+        const SUPABASE_URL = 'https://fmbympgecspgqtnazrbm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtYnltcGdlY3NwZ3F0bmF6cmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDkwOTksImV4cCI6MjA2NjMyNTA5OX0.rqOrNDNRTF7WnDS6utTTKfFoNZKPiMZV_ttqYzYCaJs';
+        // =================================================================
+
+        const { createClient } = supabase;
+        const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ดึง Element ต่างๆ จากหน้าเว็บ
+        const loginSection = document.getElementById('login-section');
+        const diarySection = document.getElementById('diary-section');
+        const loginForm = document.getElementById('login-form');
+        const loginButton = document.getElementById('login-button');
+        const errorMessage = document.getElementById('error-message');
+        const logoutButton = document.getElementById('logout-button');
+        const datesList = document.getElementById('dates-list');
+        const showFormButton = document.getElementById('show-form-button');
+        const newDateFormContainer = document.getElementById('new-date-form-container');
+        const newDateForm = document.getElementById('new-date-form');
+        const cancelNewDateButton = document.getElementById('cancel-new-date');
+
+        // ฟังก์ชันสำหรับดึงและแสดงผลนัดหมาย
+        const fetchAndRenderDates = async () => {
+            datesList.innerHTML = '<p class="text-center text-gray-500">กำลังโหลดความทรงจำ... 💖</p>';
+            
+            const { data, error } = await db
+                .from('sweet_dates')
+                .select('*')
+                .order('event_datetime', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching dates:', error);
+                datesList.innerHTML = '<p class="text-center text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
+                return;
+            }
+
+            if (data.length === 0) {
+                datesList.innerHTML = '<p class="text-center text-gray-500 bg-white p-6 rounded-xl">ยังไม่มีนัดหมายเลยนะ มาสร้างความทรงจำแรกกันเถอะ!</p>';
+                return;
+            }
+
+            datesList.innerHTML = ''; // เคลียร์ข้อมูลเก่า
+            data.forEach(date => {
+                const dateCard = `
+                    <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-pink-400 animate-fade-in">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-gray-400">
+                                    ${new Date(date.event_datetime).toLocaleDateString('th-TH', {
+                                        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                                    })} น.
+                                </p>
+                                <h2 class="text-2xl font-bold text-gray-800 mt-1">${date.title}</h2>
+                            </div>
+                            <span class="bg-pink-100 text-pink-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                                ชวนโดย: ${date.creator_name}
+                            </span>
+                        </div>
+                        <p class="text-gray-600 mt-2">${date.description || ''}</p>
+                    </div>
+                `;
+                datesList.innerHTML += dateCard;
+            });
+        };
+        
+        // ฟังก์ชันสลับหน้า
+        const showDiaryPage = () => {
+            loginSection.classList.add('hidden');
+            diarySection.classList.remove('hidden');
+            fetchAndRenderDates();
+        };
+
+        const showLoginPage = () => {
+            loginSection.classList.remove('hidden');
+            diarySection.classList.add('hidden');
+        };
+
+        // จัดการการ Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            loginButton.disabled = true;
+            loginButton.textContent = 'กำลังเข้าสู่ระบบ...';
+            errorMessage.classList.add('hidden');
+
+            const { data, error } = await db.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                errorMessage.textContent = 'อุ๊ปส์! อีเมลหรือรหัสผ่านไม่ถูกต้องนะ';
+                errorMessage.classList.remove('hidden');
+                loginButton.disabled = false;
+                loginButton.textContent = 'เข้าสู่ไดอารี่';
+            } else {
+                showDiaryPage();
+            }
+        });
+
+        // จัดการการ Logout
+        logoutButton.addEventListener('click', async () => {
+            await db.auth.signOut();
+            showLoginPage();
+        });
+
+        // จัดการฟอร์มสร้างนัดหมาย
+        showFormButton.addEventListener('click', () => {
+            newDateFormContainer.classList.remove('hidden');
+            showFormButton.classList.add('hidden');
+        });
+
+        cancelNewDateButton.addEventListener('click', () => {
+            newDateFormContainer.classList.add('hidden');
+            showFormButton.classList.remove('hidden');
+            newDateForm.reset();
+        });
+
+        newDateForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = (await db.auth.getUser()).data.user;
+
+            if (!user) {
+                alert('Session หมดอายุ กรุณา Login ใหม่');
+                showLoginPage();
+                return;
+            }
+
+            const newDate = {
+                creator_id: user.id,
+                creator_name: document.getElementById('creator-name').value,
+                title: document.getElementById('title').value,
+                description: document.getElementById('description').value,
+                event_datetime: document.getElementById('event-datetime').value,
+            };
+            
+            const saveButton = document.getElementById('save-date-button');
+            saveButton.disabled = true;
+            saveButton.textContent = 'กำลังบันทึก...';
+
+            const { error } = await db.from('sweet_dates').insert([newDate]);
+
+            if (error) {
+                alert('เกิดข้อผิดพลาด: ' + error.message);
+            } else {
+                newDateForm.reset();
+                newDateFormContainer.classList.add('hidden');
+                showFormButton.classList.remove('hidden');
+                await fetchAndRenderDates(); // โหลดข้อมูลใหม่
+            }
+
+            saveButton.disabled = false;
+            saveButton.textContent = 'บันทึกนัดหมาย';
+        });
+
+        // เช็คสถานะ Login ตอนเปิดหน้าเว็บครั้งแรก
+        const checkSession = async () => {
+            const { data: { session } } = await db.auth.getSession();
+            if (session) {
+                showDiaryPage();
+            } else {
+                showLoginPage();
+            }
+        };
+
+        // เริ่มทำงานเมื่อเปิดหน้าเว็บ
+        checkSession();
+
+    </script>
+</body>
+</html>
