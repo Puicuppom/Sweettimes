@@ -63,8 +63,8 @@
                         <label class="block text-gray-700 mb-1">ชื่อเล่นของคุณ (คนชวน)</label>
                         <select id="creator-name" class="w-full px-4 py-2 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-rose-400" required>
                             <option value="" disabled selected>-- กรุณาเลือกชื่อของคุณ --</option>
-                            <option value="Pui">Pui 👱‍♀️</option>
-                            <option value="Noon">Noon 👱‍♂️</option>
+                            <option value="Pui">Pui</option>
+                            <option value="Noon">Noon</option>
                         </select>
                     </div>
                     <div>
@@ -225,7 +225,7 @@
                 diarySection.classList.remove('hidden');
                 fetchAndRenderDates();
             } else {
-                showLoginPage(); // ถ้าหา user ไม่เจอ ให้กลับไปหน้า login
+                showLoginPage();
             }
         };
 
@@ -237,30 +237,7 @@
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const loginButton = document.getElementById('login-button');
-            
-            loginButton.disabled = true;
-            loginButton.textContent = 'กำลังเข้าสู่ระบบ...';
-            errorMessage.classList.add('hidden');
-
-            const { data, error } = await db.auth.signInWithPassword({ email, password });
-
-            if (error) {
-                console.error("Login Error:", error);
-                errorMessage.textContent = `Login ไม่สำเร็จ: ${error.message}`;
-                errorMessage.classList.remove('hidden');
-                loginButton.disabled = false;
-                loginButton.textContent = 'เข้าสู่ระบบ';
-            } else if (data.session) {
-                showDiaryPage();
-            } else {
-                errorMessage.textContent = 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง';
-                errorMessage.classList.remove('hidden');
-                loginButton.disabled = false;
-                loginButton.textContent = 'เข้าสู่ระบบ';
-            }
+            // ... (ส่วนโค้ด Login เหมือนเดิม)
         });
         
         logoutButton.addEventListener('click', async () => {
@@ -291,8 +268,8 @@
             //  ⚠️⚠️⚠️  2. กรุณาใส่ USER ID ของ Pui และ Noon ที่นี่  ⚠️⚠️⚠️
             // =================================================================
             const USER_IDS = {
-                Pui: 'PASTE_PUI_USER_ID_HERE',    // <<<< แก้ตรงนี้
-                Noon: 'PASTE_NOON_USER_ID_HERE'   // <<<< แก้ตรงนี้
+                Pui: '6c2d9e89-f6dc-4ce1-abb5-ff3747e5066a',    // <<<< เอา UID ของ Pui ที่ Copy มาวางที่นี่
+                Noon: '92ef1a19-b0d4-48d1-8ea2-704460082c9a'   // <<<< เอา UID ของ Noon ที่ Copy มาวางที่นี่
             };
             // =================================================================
 
@@ -327,6 +304,7 @@
             const { error } = await db.from('sweet_dates').insert([newDate]);
             if (error) {
                 alert('เกิดข้อผิดพลาด: ' + error.message);
+                console.error("Insert Error:", error);
             } else {
                 newDateForm.reset();
                 newDateFormContainer.classList.add('hidden');
@@ -338,18 +316,38 @@
         });
         
         const checkSession = async () => {
-            // เช็คว่า URL และ Key ถูกต้องหรือไม่
-            if (!SUPABASE_URL || SUPABASE_URL.includes('YOUR_SUPABASE_URL')) {
-                document.body.innerHTML = '<div class="text-red-600 text-2xl text-center p-10">ข้อผิดพลาด: กรุณาตั้งค่า SUPABASE_URL ในโค้ด</div>';
-                return;
-            }
-            const { data: { session } } = await db.auth.getSession();
-            if (session) {
+            // ... (ส่วนโค้ด checkSession เหมือนเดิม)
+        };
+
+        // คัดลอกโค้ดส่วน Login, Logout, และ checkSession จากไฟล์ฉบับก่อนหน้ามาวางที่นี่
+        // ... (โค้ดส่วนที่เหลือ)
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginButton = document.getElementById('login-button');
+            
+            loginButton.disabled = true;
+            loginButton.textContent = 'กำลังเข้าสู่ระบบ...';
+            errorMessage.classList.add('hidden');
+
+            const { data, error } = await db.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                console.error("Login Error:", error);
+                errorMessage.textContent = `Login ไม่สำเร็จ: ${error.message}`;
+                errorMessage.classList.remove('hidden');
+                loginButton.disabled = false;
+                loginButton.textContent = 'เข้าสู่ระบบ';
+            } else if (data.session) {
                 showDiaryPage();
             } else {
-                showLoginPage();
+                errorMessage.textContent = 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง';
+                errorMessage.classList.remove('hidden');
+                loginButton.disabled = false;
+                loginButton.textContent = 'เข้าสู่ระบบ';
             }
-        };
+        });
 
         checkSession();
     </script>
