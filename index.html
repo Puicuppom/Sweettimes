@@ -282,7 +282,7 @@
         window.handleResponse = async (dateId, accepted) => {
             let updateData = { status: accepted ? 'accepted' : 'declined' };
             const promptMessage = accepted ? "ส่งข้อความน่ารักๆ ตอบกลับไปสิ:" : "หากต้องการ โปรดระบุเหตุผลที่ปฏิเสธ:";
-            const defaultText = accepted ? "ไปแน่นอน! 🥰" : "";
+            const defaultText = accepted ? "ได้สิจ๊ะที่รัก! 🥰" : "";
             const note = prompt(promptMessage, defaultText);
             if (note !== null) { updateData.response_note = note; }
             const { error } = await db.from('sweet_dates').update(updateData).match({ id: dateId });
