@@ -129,11 +129,11 @@
         // =================================================================
         //  ⚠️⚠️⚠️  กรุณาใส่ URL, KEY, และ USER IDs ของคุณที่นี่  ⚠️⚠️⚠️
         // =================================================================
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const SUPABASE_URL = 'https://fmbympgecspgqtnazrbm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtYnltcGdlY3NwZ3F0bmF6cmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDkwOTksImV4cCI6MjA2NjMyNTA5OX0.rqOrNDNRTF7WnDS6utTTKfFoNZKPiMZV_ttqYzYCaJs';
         const USER_IDS = {
-            Pui: 'YOUR_PUI_USER_ID_HERE',
-            Noon: 'YOUR_NOON_USER_ID_HERE'
+            Pui: '6c2d9e89-f6dc-4ce1-abb5-ff3747e5066a',
+            Noon: '74527e79-eb4d-4541-9aad-956dd72bb601'
         };
         // =================================================================
         
@@ -300,7 +300,7 @@
         window.handleResponse = async (dateId, accepted) => {
             let updateData = { status: accepted ? 'accepted' : 'declined' };
             const promptMessage = accepted ? "ส่งข้อความน่ารักๆ ตอบกลับไปสิ:" : "หากต้องการ โปรดระบุเหตุผลที่ปฏิเสธ:";
-            const defaultText = accepted ? "ไปแน่นอน! 🥰" : "";
+            const defaultText = accepted ? "ได้สิจ๊ะที่รัก! 🥰" : "";
             const note = prompt(promptMessage, defaultText);
             if (note !== null) { updateData.response_note = note; }
             const { error } = await db.from('sweet_dates').update(updateData).match({ id: dateId });
