@@ -179,7 +179,8 @@
         
         const updateTabCounts = async () => {
             if (!currentUser) return;
-            const { data, error } = await db.rpc('get_date_counts', { p_user_id: currentUser.id });
+            // ✅  เรียกใช้ฟังก์ชันนับจำนวนเวอร์ชันใหม่ (ที่ไม่ต้องส่ง ID)
+            const { data, error } = await db.rpc('get_date_counts');
             if (error) { console.error("Error fetching tab counts:", error); return; }
             if (!data) return;
             const counts = { pending: data.pending, upcoming: data.upcoming, past: data.past };
@@ -227,16 +228,14 @@
             let query = db.from('sweet_dates').select('*', { count: 'exact' });
             const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-            // ✅ ตรรกะการดึงข้อมูลฉบับแก้ไข
             if (activeTab === 'pending') {
-                query = query.eq('status', 'pending')
-                             .or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
+                // ✅ แก้ไข: แสดงนัด pending ทั้งหมดที่เกี่ยวข้องกับเรา
+                query = query.eq('status', 'pending').or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
             } else if (activeTab === 'upcoming') {
-                query = query.eq('status', 'accepted').gte('event_datetime', now)
-                             .or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
+                query = query.eq('status', 'accepted').gte('event_datetime', now).or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
             } else if (activeTab === 'past') {
-                query = query.lt('event_datetime', now)
-                             .or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
+                // ✅ แก้ไข: แสดงนัดที่ผ่านไปแล้ว และไม่นับ pending
+                query = query.lt('event_datetime', now).in('status', ['accepted', 'declined']).or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
             }
             
             query = query.order('event_datetime', { ascending: activeTab !== 'past' })
