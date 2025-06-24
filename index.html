@@ -262,11 +262,9 @@
                 }
                 
                 let actionButtons = '';
-                // ✅ ปุ่มแก้ไข: จะแสดงสำหรับทั้งสองคน ตราบใดที่ยังไม่ถึงวันนัดและยังไม่ถูกปฏิเสธ
                 if (date.status !== 'declined' && new Date(date.event_datetime) > new Date()) {
                     actionButtons += `<button onclick='handleEdit(${JSON.stringify(date)})' class="p-1 text-gray-400 hover:text-blue-500" title="แก้ไข"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>`;
                 }
-                // ✅ ปุ่มลบ: จะแสดงสำหรับคนสร้าง "ในทุกแท็บ"
                 if (isCreator) {
                     actionButtons += `<button onclick="deleteDate(${date.id})" class="p-1 text-gray-400 hover:text-red-500" title="ลบ"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>`;
                 }
@@ -283,7 +281,7 @@
             document.getElementById('form-title').textContent = 'แก้ไขนัดหมาย';
             document.getElementById('save-date-button').textContent = 'บันทึกการแก้ไข';
             document.getElementById('creator-name').value = date.creator_name;
-            document.getElementById('creator-name').disabled = true; // ไม่ให้เปลี่ยนคนชวนตอนแก้ไข
+            document.getElementById('creator-name').disabled = true;
             document.getElementById('title').value = date.title;
             document.getElementById('description').value = date.description;
             const localDateTime = new Date(new Date(date.event_datetime).getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
@@ -296,21 +294,14 @@
         window.changeTab = (tabName) => { activeTab = tabName; currentPage = 0; fetchAndRenderDates(); };
         window.changePage = (direction) => { currentPage += direction; fetchAndRenderDates(); };
 
-        // ✅ ฟังก์ชัน handleResponse ที่ปลอดภัยยิ่งขึ้น
         window.handleResponse = async (dateId, accepted) => {
             const promptMessage = accepted ? "ส่งข้อความน่ารักๆ ตอบกลับไปสิ:" : "หากต้องการ โปรดระบุเหตุผลที่ปฏิเสธ:";
             const defaultText = accepted ? "ได้สิจ๊ะที่รัก! 🥰" : "";
             const note = prompt(promptMessage, defaultText);
             
-            // ถ้าผู้ใช้กด Cancel (note เป็น null) จะไม่ทำอะไรเลย
-            if (note === null) {
-                return; 
-            }
+            if (note === null) { return; }
 
-            let updateData = { 
-                status: accepted ? 'accepted' : 'declined',
-                response_note: note 
-            };
+            let updateData = { status: accepted ? 'accepted' : 'declined', response_note: note };
             
             const { error } = await db.from('sweet_dates').update(updateData).match({ id: dateId });
             if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); }
