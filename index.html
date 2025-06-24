@@ -179,7 +179,6 @@
         
         const updateTabCounts = async () => {
             if (!currentUser) return;
-            // ✅  เรียกใช้ฟังก์ชันนับจำนวนเวอร์ชันใหม่ (ที่ไม่ต้องส่ง ID)
             const { data, error } = await db.rpc('get_date_counts');
             if (error) { console.error("Error fetching tab counts:", error); return; }
             if (!data) return;
@@ -229,12 +228,10 @@
             const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
             if (activeTab === 'pending') {
-                // ✅ แก้ไข: แสดงนัด pending ทั้งหมดที่เกี่ยวข้องกับเรา
                 query = query.eq('status', 'pending').or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
             } else if (activeTab === 'upcoming') {
                 query = query.eq('status', 'accepted').gte('event_datetime', now).or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
             } else if (activeTab === 'past') {
-                // ✅ แก้ไข: แสดงนัดที่ผ่านไปแล้ว และไม่นับ pending
                 query = query.lt('event_datetime', now).in('status', ['accepted', 'declined']).or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
             }
             
@@ -264,6 +261,7 @@
                     responseButtons = `<div class="flex space-x-2"><button onclick="handleResponse(${date.id}, true)" class="bg-green-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-green-600">ตอบรับ</button><button onclick="handleResponse(${date.id}, false)" class="bg-red-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-600">ปฏิเสธ</button></div>`;
                 }
                 
+                // ✅ นี่คือโค้ดส่วนที่แก้ไขแล้ว
                 let creatorActions = '';
                 if (isCreator) {
                     if (date.status !== 'declined' && new Date(date.event_datetime) > new Date()) {
