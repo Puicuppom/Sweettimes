@@ -1,123 +1,37 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sweet Times 💖</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style> body { font-family: 'Itim', cursive; } .animate-fade-in { animation: fadeIn 0.5s ease-in-out; } @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } } </style>
+    <!-- ... Head เหมือนเดิม ... -->
 </head>
 <body class="bg-rose-50">
 
+    <!-- ... Login, Header, Form เหมือนเดิม ... -->
     <div id="login-section" class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm text-center">
-            <h1 class="text-4xl font-bold text-rose-500 mb-2">Sweet Times</h1>
-            <p class="text-gray-500 mb-6">💖 ช่วงเวลาสวีทของสองเรา 💖</p>
-            <form id="login-form">
-                <div class="mb-4 text-left">
-                    <label class="block text-gray-700 mb-1" for="email">อีเมล</label>
-                    <input id="email" type="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400" required />
-                </div>
-                <div class="mb-6 text-left">
-                    <label class="block text-gray-700 mb-1" for="password">รหัสผ่าน</label>
-                    <input id="password" type="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400" required />
-                </div>
-                <p id="error-message" class="text-red-500 text-center mb-4 hidden"></p>
-                <button type="submit" id="login-button" class="w-full bg-rose-500 text-white py-2 rounded-lg hover:bg-rose-600 transition-colors disabled:bg-rose-300">เข้าสู่ระบบ</button>
-            </form>
-        </div>
+        <!-- ... -->
     </div>
-
     <div id="diary-section" class="hidden min-h-screen p-4 sm:p-8">
         <div class="max-w-3xl mx-auto">
-            <header class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-4xl font-bold text-rose-500">Sweet Times</h1>
-                    <p class="text-gray-500">ช่วงเวลาสวีทของสองเรา</p>
-                </div>
-                <button id="logout-button" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">ออกจากระบบ</button>
-            </header>
-
-            <div class="mb-6">
-                <button id="show-form-button" class="w-full bg-rose-500 text-white px-8 py-3 rounded-lg text-lg shadow-md hover:bg-rose-600 transition-all transform hover:scale-105 flex items-center justify-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    <span>สร้างนัดหมายใหม่</span>
-                </button>
-            </div>
-
-            <div id="new-date-form-container" class="bg-white p-6 rounded-2xl shadow-md mb-8 hidden">
-                 <h2 id="form-title" class="text-2xl font-bold text-rose-500 mb-4 text-center">สร้างนัดหมายใหม่</h2>
-                 <form id="new-date-form" class="space-y-4">
-                    <input type="hidden" id="editing-date-id">
-                    <div>
-                        <label class="block text-gray-700 mb-1">ชื่อเล่นของคุณ (คนชวน)</label>
-                        <select id="creator-name" class="w-full px-4 py-2 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-rose-400" required>
-                            <option value="" disabled selected>-- กรุณาเลือกชื่อของคุณ --</option>
-                            <option value="Pui">Pui</option>
-                            <option value="Noon">Noon</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-1">หัวข้อนัดหมาย</label>
-                        <input id="title" type="text" placeholder="เช่น ไปเดทดูดาวกัน! ✨" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400" required />
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-1">คำอธิบายเล็กๆ น้อยๆ</label>
-                        <textarea id="description" placeholder="อยากไปนอนดูดาวด้วยกันนะ 😊" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-1">วันและเวลา</label>
-                        <input id="event-datetime" type="datetime-local" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400" required />
-                    </div>
-                    <div class="flex items-center justify-end pt-2 space-x-4">
-                         <button type="button" id="cancel-new-date" class="text-gray-600 hover:text-rose-500">ยกเลิก</button>
-                         <button type="submit" id="save-date-button" class="bg-rose-500 text-white px-6 py-2 rounded-lg hover:bg-rose-600 transition-colors">ส่งคำเชิญ</button>
-                    </div>
-                 </form>
-            </div>
-            
-            <div class="mb-6 border-b border-gray-200">
-                <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-                    <button id="tab-pending" onclick="changeTab('pending')" class="tab-button flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
-                        <span>รอการตอบรับ</span>
-                        <span id="count-pending" class="ml-2 bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full hidden">0</span>
-                    </button>
-                    <button id="tab-upcoming" onclick="changeTab('upcoming')" class="tab-button flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
-                        <span>นัดหมายที่จะถึง</span>
-                        <span id="count-upcoming" class="ml-2 bg-rose-200 text-rose-800 text-xs font-semibold px-2 py-0.5 rounded-full hidden">0</span>
-                    </button>
-                    <button id="tab-past" onclick="changeTab('past')" class="tab-button flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
-                        <span>ความทรงจำ</span>
-                        <span id="count-past" class="ml-2 bg-gray-200 text-gray-800 text-xs font-semibold px-2 py-0.5 rounded-full hidden">0</span>
-                    </button>
-                </nav>
-            </div>
-
-            <div id="dates-list" class="space-y-4"></div>
-
-            <div id="pagination-controls" class="mt-8 flex justify-between items-center hidden">
-                <button id="prev-button" onclick="changePage(-1)" class="bg-white text-gray-700 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">← ก่อนหน้า</button>
-                <span id="page-info" class="text-sm text-gray-600"></span>
-                <button id="next-button" onclick="changePage(1)" class="bg-white text-gray-700 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">ถัดไป →</button>
-            </div>
+            <!-- ... -->
         </div>
     </div>
 
+    <!-- ✅ JavaScript Logic ฉบับสมบูรณ์และแก้ไขแล้ว -->
     <script>
+        // =================================================================
+        //  ⚠️⚠️⚠️  กรุณาใส่ URL, KEY, และ USER IDs ของคุณที่นี่  ⚠️⚠️⚠️
+        // =================================================================
         const SUPABASE_URL = 'https://fmbympgecspgqtnazrbm.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtYnltcGdlY3NwZ3F0bmF6cmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDkwOTksImV4cCI6MjA2NjMyNTA5OX0.rqOrNDNRTF7WnDS6utTTKfFoNZKPiMZV_ttqYzYCaJs';
         const USER_IDS = {
             Pui: '6c2d9e89-f6dc-4ce1-abb5-ff3747e5066a',
             Noon: '74527e79-eb4d-4541-9aad-956dd72bb601'
         };
+        // =================================================================
         
         const { createClient } = supabase;
         const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // (ส่วนประกาศตัวแปร DOM elements และ state ทั้งหมดเหมือนเดิม)
         const loginSection = document.getElementById('login-section');
         const diarySection = document.getElementById('diary-section');
         const loginForm = document.getElementById('login-form');
@@ -128,73 +42,18 @@
         const newDateFormContainer = document.getElementById('new-date-form-container');
         const newDateForm = document.getElementById('new-date-form');
         const cancelNewDateButton = document.getElementById('cancel-new-date');
-        
         let currentUser = null;
         let activeTab = 'upcoming';
         let currentPage = 0;
         const PAGE_SIZE = 5;
 
-        const formatDate = (dateString) => {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) + ' เวลา ' + date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' น.';
-        };
-        
-        const getStatusBadge = (status) => {
-            switch(status) {
-                case 'accepted': return '<span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full">ตอบรับแล้ว</span>';
-                case 'declined': return '<span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded-full">ปฏิเสธ</span>';
-                default: return '<span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded-full">รอการตอบรับ</span>';
-            }
-        };
-
-        const getResponseNoteHTML = (date) => {
-            if (!date.response_note) return '';
-            if (date.status === 'accepted') { return `<p class="mt-2 text-sm text-green-700 bg-green-50 p-2 rounded-md">ข้อความตอบกลับ: ${date.response_note}</p>`; }
-            if (date.status === 'declined') { return `<p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-md">เหตุผล: ${date.response_note}</p>`; }
-            return '';
-        };
-        
-        const updateTabCounts = async () => {
-            if (!currentUser) return;
-            const { data, error } = await db.rpc('get_date_counts', { p_user_id: currentUser.id });
-            if (error) { console.error("Error fetching tab counts:", error); return; }
-            if (!data) return;
-            const counts = { pending: data.pending, upcoming: data.upcoming, past: data.past };
-            for (const key in counts) {
-                const countBadge = document.getElementById(`count-${key}`);
-                if (counts[key] > 0) {
-                    countBadge.textContent = counts[key];
-                    countBadge.classList.remove('hidden');
-                } else {
-                    countBadge.classList.add('hidden');
-                }
-            }
-        };
-
-        const renderTabs = () => {
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('border-rose-500', 'text-rose-600');
-                button.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-            });
-            const currentTabButton = document.getElementById(`tab-${activeTab}`);
-            currentTabButton.classList.add('border-rose-500', 'text-rose-600');
-            currentTabButton.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-        };
-
-        const renderPagination = (totalItems) => {
-            const paginationControls = document.getElementById('pagination-controls');
-            if (!totalItems || totalItems <= PAGE_SIZE) {
-                paginationControls.classList.add('hidden');
-                return;
-            }
-            paginationControls.classList.remove('hidden');
-            const pageInfo = document.getElementById('page-info');
-            const totalPages = Math.ceil(totalItems / PAGE_SIZE);
-            pageInfo.textContent = `หน้า ${currentPage + 1} / ${totalPages}`;
-            document.getElementById('prev-button').disabled = (currentPage === 0);
-            document.getElementById('next-button').disabled = (currentPage + 1 >= totalPages);
-        };
+        // (ฟังก์ชัน formatDate, getStatusBadge, getResponseNoteHTML, updateTabCounts, renderTabs, renderPagination เหมือนเดิม)
+        const formatDate = (dateString) => { if (!dateString) return ''; const date = new Date(dateString); return date.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) + ' เวลา ' + date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' น.'; };
+        const getStatusBadge = (status) => { switch(status) { case 'accepted': return '<span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full">ตอบรับแล้ว</span>'; case 'declined': return '<span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded-full">ปฏิเสธ</span>'; default: return '<span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded-full">รอการตอบรับ</span>'; } };
+        const getResponseNoteHTML = (date) => { if (!date.response_note) return ''; if (date.status === 'accepted') { return `<p class="mt-2 text-sm text-green-700 bg-green-50 p-2 rounded-md">ข้อความตอบกลับ: ${date.response_note}</p>`; } if (date.status === 'declined') { return `<p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-md">เหตุผล: ${date.response_note}</p>`; } return ''; };
+        const updateTabCounts = async () => { if (!currentUser) return; const { data, error } = await db.rpc('get_date_counts', { p_user_id: currentUser.id }); if (error) { console.error("Error fetching tab counts:", error); return; } if (!data) return; const counts = { pending: data.pending, upcoming: data.upcoming, past: data.past }; for (const key in counts) { const countBadge = document.getElementById(`count-${key}`); if (counts[key] > 0) { countBadge.textContent = counts[key]; countBadge.classList.remove('hidden'); } else { countBadge.classList.add('hidden'); } } };
+        const renderTabs = () => { document.querySelectorAll('.tab-button').forEach(button => { button.classList.remove('border-rose-500', 'text-rose-600'); button.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300'); }); const currentTabButton = document.getElementById(`tab-${activeTab}`); currentTabButton.classList.add('border-rose-500', 'text-rose-600'); currentTabButton.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300'); };
+        const renderPagination = (totalItems) => { const paginationControls = document.getElementById('pagination-controls'); if (!totalItems || totalItems <= PAGE_SIZE) { paginationControls.classList.add('hidden'); return; } paginationControls.classList.remove('hidden'); const pageInfo = document.getElementById('page-info'); const totalPages = Math.ceil(totalItems / PAGE_SIZE); pageInfo.textContent = `หน้า ${currentPage + 1} / ${totalPages}`; document.getElementById('prev-button').disabled = (currentPage === 0); document.getElementById('next-button').disabled = (currentPage + 1 >= totalPages); };
 
         const fetchAndRenderDates = async () => {
             if (!currentUser) return;
@@ -206,7 +65,7 @@
             const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
             if (activeTab === 'pending') {
-                query = query.eq('status', 'pending').or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
+                query = query.eq('invitee_id', currentUser.id).eq('status', 'pending');
             } else if (activeTab === 'upcoming') {
                 query = query.eq('status', 'accepted').gte('event_datetime', now).or(`creator_id.eq.${currentUser.id},invitee_id.eq.${currentUser.id}`);
             } else if (activeTab === 'past') {
@@ -274,7 +133,7 @@
         window.handleResponse = async (dateId, accepted) => {
             let updateData = { status: accepted ? 'accepted' : 'declined' };
             const promptMessage = accepted ? "ส่งข้อความน่ารักๆ ตอบกลับไปสิ:" : "หากต้องการ โปรดระบุเหตุผลที่ปฏิเสธ:";
-            const defaultText = accepted ? "ไปแน่นอน! 🥰" : "";
+            const defaultText = accepted ? "ได้สิจ๊ะที่รัก! 🥰" : "";
             const note = prompt(promptMessage, defaultText);
             if (note !== null) { updateData.response_note = note; }
             const { error } = await db.from('sweet_dates').update(updateData).match({ id: dateId });
@@ -382,20 +241,16 @@
             }
 
             const dateData = {
-                creator_id: currentUser.id,
                 creator_name: creatorName,
-                invitee_id: inviteeId,
                 title: document.getElementById('title').value,
                 description: document.getElementById('description').value,
                 event_datetime: document.getElementById('event-datetime').value,
-                status: isEditing ? undefined : 'pending' // ไม่เปลี่ยน status ตอนแก้
             };
 
-            // ลบ key ที่ไม่ต้องการส่งไปตอน update
-            if (isEditing) {
-                delete dateData.creator_id;
-                delete dateData.invitee_id;
-                delete dateData.status;
+            if (!isEditing) {
+                dateData.creator_id = currentUser.id;
+                dateData.invitee_id = inviteeId;
+                dateData.status = 'pending';
             }
 
             let error;
