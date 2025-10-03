@@ -13,29 +13,44 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        body { font-family: 'Itim', cursive; }
-        .animate-fade-in { animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { 
+            font-family: 'Itim', cursive; 
+        }
+        .animate-fade-in { 
+            animation: fadeIn 0.5s ease-in-out; 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        /* ✨ ปรับปรุง Glassmorphism ให้ทึบขึ้นเล็กน้อย */
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.6);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
     </style>
 </head>
-<body class="bg-rose-50">
+<!-- ✨ พื้นหลังใหม่ที่เข้มขึ้น -->
+<body class="text-gray-800 bg-gradient-to-br from-rose-100 via-pink-100 to-orange-200">
 
     <!-- Login Section -->
     <div id="login-section" class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm text-center">
+        <div class="glassmorphism p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center">
             <h1 class="text-4xl font-bold text-rose-500 mb-2">Sweet Times</h1>
-            <p class="text-gray-500 mb-6">💖 PUI & NOON 💖</p>
+            <p class="text-gray-600 mb-6">💖 PUI & NOON 💖</p>
             <form id="login-form">
                 <div class="mb-4 text-left">
                     <label class="block text-gray-700 mb-1" for="email">อีเมล</label>
-                    <input id="email" type="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400" required />
+                    <input id="email" type="email" class="w-full px-4 py-2 bg-white/50 border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-400" required />
                 </div>
                 <div class="mb-6 text-left">
                     <label class="block text-gray-700 mb-1" for="password">รหัสผ่าน</label>
-                    <input id="password" type="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400" required />
+                    <input id="password" type="password" class="w-full px-4 py-2 bg-white/50 border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-400" required />
                 </div>
                 <p id="error-message" class="text-red-500 text-center mb-4 hidden"></p>
-                <button type="submit" id="login-button" class="w-full bg-rose-500 text-white py-2 rounded-lg hover:bg-rose-600 transition-colors disabled:bg-rose-300">
+                <button type="submit" id="login-button" class="w-full bg-gradient-to-br from-pink-500 to-orange-400 text-white py-2.5 rounded-lg hover:from-pink-600 hover:to-orange-500 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:from-rose-300 disabled:to-pink-300 disabled:shadow-md">
                     เข้าสู่ระบบ
                 </button>
             </form>
@@ -45,30 +60,31 @@
     <!-- Diary Section -->
     <div id="diary-section" class="hidden min-h-screen p-4 sm:p-8">
         <div class="max-w-3xl mx-auto">
-            <header class="flex justify-between items-center mb-6">
+            <header class="flex justify-between items-center mb-8 p-4 rounded-2xl glassmorphism shadow-lg">
                 <div>
-                    <h1 class="text-4xl font-bold text-rose-500">Sweet Times</h1>
-                    <p class="text-gray-500">PUI & NOON</p>
+                    <h1 class="text-4xl font-bold text-rose-600">Sweet Times</h1>
+                    <p class="text-gray-600">PUI & NOON</p>
                 </div>
-                <button id="logout-button" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+                <!-- ✨ ปุ่ม Logout ที่ชัดเจนขึ้น -->
+                <button id="logout-button" class="bg-white/60 text-gray-800 font-semibold px-4 py-2 rounded-lg hover:bg-white shadow-sm transition-all duration-200">
                     ออกจากระบบ
                 </button>
             </header>
 
-            <div class="mb-6">
-                <button id="show-form-button" class="w-full bg-rose-500 text-white px-8 py-3 rounded-lg text-lg shadow-md hover:bg-rose-600 transition-all transform hover:scale-105 flex items-center justify-center space-x-2">
+            <div class="mb-8">
+                <button id="show-form-button" class="w-full bg-gradient-to-br from-pink-500 to-orange-400 text-white px-8 py-3 rounded-xl text-lg shadow-xl hover:shadow-2xl border border-white/50 transition-all transform hover:scale-[1.02] flex items-center justify-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     <span>สร้างนัดหมายใหม่</span>
                 </button>
             </div>
 
-            <div id="new-date-form-container" class="bg-white p-6 rounded-2xl shadow-md mb-8 hidden">
-                <h2 id="form-title" class="text-2xl font-bold text-rose-500 mb-4 text-center">สร้างนัดหมายใหม่</h2>
+            <div id="new-date-form-container" class="glassmorphism p-6 rounded-2xl shadow-xl mb-8 hidden">
+                <h2 id="form-title" class="text-2xl font-bold text-rose-600 mb-4 text-center">สร้างนัดหมายใหม่</h2>
                 <form id="new-date-form" class="space-y-4">
                    <input type="hidden" id="editing-date-id">
                    <div>
                        <label class="block text-gray-700 mb-1">ชื่อเล่นของคุณ (คนชวน)</label>
-                       <select id="creator-name" class="w-full px-4 py-2 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:bg-gray-100 disabled:cursor-not-allowed" required>
+                       <select id="creator-name" class="w-full px-4 py-2 border-2 border-transparent bg-white/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:bg-gray-100/70 disabled:cursor-not-allowed" required>
                            <option value="" disabled selected>-- กรุณาเลือกชื่อของคุณ --</option>
                            <option value="Pui">Pui</option>
                            <option value="Noon">Noon</option>
@@ -76,48 +92,48 @@
                    </div>
                    <div>
                        <label class="block text-gray-700 mb-1">หัวข้อนัดหมาย</label>
-                       <input id="title" type="text" placeholder="เช่น ไปเดทดูดาวกัน! ✨" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400" required />
+                       <input id="title" type="text" placeholder="เช่น ไปเดทดูดาวกัน! ✨" class="w-full px-4 py-2 border-2 border-transparent bg-white/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400" required />
                    </div>
                    <div>
                        <label class="block text-gray-700 mb-1">คำอธิบายเล็กๆ น้อยๆ</label>
-                       <textarea id="description" placeholder="อยากไปนอนดูดาวด้วยกันนะ 😊" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400"></textarea>
+                       <textarea id="description" placeholder="อยากไปนอนดูดาวด้วยกันนะ 😊" rows="3" class="w-full px-4 py-2 border-2 border-transparent bg-white/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400"></textarea>
                    </div>
                    <div>
                        <label class="block text-gray-700 mb-1">วันและเวลา</label>
-                       <input id="event-datetime" type="datetime-local" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400" required />
+                       <input id="event-datetime" type="datetime-local" class="w-full px-4 py-2 border-2 border-transparent bg-white/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400" required />
                    </div>
                    <div class="flex items-center justify-end pt-2 space-x-4">
-                        <button type="button" id="cancel-new-date" class="text-gray-600 hover:text-rose-500">ยกเลิก</button>
-                        <button type="submit" id="save-date-button" class="bg-rose-500 text-white px-6 py-2 rounded-lg hover:bg-rose-600 transition-colors">ส่งคำเชิญ</button>
+                        <button type="button" id="cancel-new-date" class="text-gray-600 hover:text-rose-500 font-semibold">ยกเลิก</button>
+                        <button type="submit" id="save-date-button" class="bg-rose-500 text-white px-6 py-2 rounded-lg hover:bg-rose-600 transition-colors shadow-md">ส่งคำเชิญ</button>
                    </div>
                 </form>
             </div>
             
-            <div class="mb-6 border-b border-gray-200">
-                <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-                    <button id="tab-pending" onclick="changeTab('pending')" class="tab-button flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
+            <div class="mb-8 p-1.5 rounded-xl glassmorphism">
+                <nav class="flex space-x-2" aria-label="Tabs">
+                    <button id="tab-pending" onclick="changeTab('pending')" class="tab-button flex-1 flex items-center justify-center whitespace-nowrap py-2 px-1 font-medium text-sm rounded-lg transition-all">
                         <span>รอการตอบรับ</span>
                         <span id="count-pending" class="ml-2 bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full hidden">0</span>
                     </button>
-                    <button id="tab-upcoming" onclick="changeTab('upcoming')" class="tab-button flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
+                    <button id="tab-upcoming" onclick="changeTab('upcoming')" class="tab-button flex-1 flex items-center justify-center whitespace-nowrap py-2 px-1 font-medium text-sm rounded-lg transition-all">
                         <span>นัดหมายที่จะถึง</span>
                         <span id="count-upcoming" class="ml-2 bg-rose-200 text-rose-800 text-xs font-semibold px-2 py-0.5 rounded-full hidden">0</span>
                     </button>
-                    <button id="tab-past" onclick="changeTab('past')" class="tab-button flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
+                    <button id="tab-past" onclick="changeTab('past')" class="tab-button flex-1 flex items-center justify-center whitespace-nowrap py-2 px-1 font-medium text-sm rounded-lg transition-all">
                         <span>ความทรงจำ</span>
                         <span id="count-past" class="ml-2 bg-gray-200 text-gray-800 text-xs font-semibold px-2 py-0.5 rounded-full hidden">0</span>
                     </button>
                 </nav>
             </div>
 
-            <div id="dates-list" class="space-y-4"></div>
+            <div id="dates-list" class="space-y-5"></div>
 
             <div id="pagination-controls" class="mt-8 flex justify-between items-center hidden">
-                <button id="prev-button" onclick="changePage(-1)" class="bg-white text-gray-700 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                <button id="prev-button" onclick="changePage(-1)" class="bg-white/80 text-gray-700 px-4 py-2 rounded-lg shadow-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed">
                     ← ก่อนหน้า
                 </button>
-                <span id="page-info" class="text-sm text-gray-600"></span>
-                <button id="next-button" onclick="changePage(1)" class="bg-white text-gray-700 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span id="page-info" class="text-sm text-gray-800 font-semibold glassmorphism py-2 px-4 rounded-lg"></span>
+                <button id="next-button" onclick="changePage(1)" class="bg-white/80 text-gray-700 px-4 py-2 rounded-lg shadow-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed">
                     ถัดไป →
                 </button>
             </div>
@@ -125,6 +141,7 @@
     </div>
 
     <script>
+        // ... (โค้ด JavaScript ส่วนใหญ่ยังคงเดิม) ...
         // =================================================================
         //  ⚠️⚠️⚠️  กรุณาใส่ URL, KEY, และ USER IDs ของคุณที่นี่  ⚠️⚠️⚠️
         // =================================================================
@@ -138,7 +155,7 @@
         
         const { createClient } = supabase;
         const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+        
         const loginSection = document.getElementById('login-section');
         const diarySection = document.getElementById('diary-section');
         const loginForm = document.getElementById('login-form');
@@ -155,6 +172,20 @@
         let currentPage = 0;
         const PAGE_SIZE = 5;
 
+        // ✨ ปรับปรุงฟังก์ชัน renderTabs ให้ชัดเจนยิ่งขึ้น
+        const renderTabs = () => {
+            document.querySelectorAll('.tab-button').forEach(button => {
+                // สไตล์ของปุ่มที่ "ไม่ได้" เลือก: เพิ่มความทึบและปรับสีตัวอักษร
+                button.classList.remove('bg-white', 'text-rose-600', 'shadow-lg');
+                button.classList.add('text-gray-700', 'hover:bg-white/70', 'bg-white/40');
+            });
+            const currentTabButton = document.getElementById(`tab-${activeTab}`);
+            // สไตล์ของปุ่มที่ "ถูก" เลือก
+            currentTabButton.classList.add('bg-white', 'text-rose-600', 'shadow-lg');
+            currentTabButton.classList.remove('text-gray-700', 'hover:bg-white/70', 'bg-white/40');
+        };
+
+        // ... (ฟังก์ชันอื่นๆ ส่วนใหญ่เหมือนเดิม) ...
         const formatDate = (dateString) => {
             if (!dateString) return '';
             const date = new Date(dateString);
@@ -171,8 +202,8 @@
 
         const getResponseNoteHTML = (date) => {
             if (!date.response_note) return '';
-            if (date.status === 'accepted') { return `<p class="mt-2 text-sm text-green-700 bg-green-50 p-2 rounded-md">ข้อความตอบกลับ: ${date.response_note}</p>`; }
-            if (date.status === 'declined') { return `<p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-md">เหตุผล: ${date.response_note}</p>`; }
+            if (date.status === 'accepted') { return `<p class="mt-2 text-sm text-green-800 bg-green-500/10 p-3 rounded-lg">ข้อความตอบกลับ: ${date.response_note}</p>`; }
+            if (date.status === 'declined') { return `<p class="mt-2 text-sm text-red-800 bg-red-500/10 p-3 rounded-lg">เหตุผล: ${date.response_note}</p>`; }
             return '';
         };
         
@@ -198,16 +229,6 @@
             } catch (error) { console.error("Error fetching tab counts:", error); }
         };
 
-        const renderTabs = () => {
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('border-rose-500', 'text-rose-600');
-                button.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-            });
-            const currentTabButton = document.getElementById(`tab-${activeTab}`);
-            currentTabButton.classList.add('border-rose-500', 'text-rose-600');
-            currentTabButton.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-        };
-
         const renderPagination = (totalItems) => {
             const paginationControls = document.getElementById('pagination-controls');
             if (!totalItems || totalItems <= PAGE_SIZE) {
@@ -224,49 +245,86 @@
 
         const fetchAndRenderDates = async () => {
             if (!currentUser) return;
-            datesList.innerHTML = '<p class="text-center text-gray-500 p-10">กำลังโหลด... 💖</p>';
+            datesList.innerHTML = '<p class="text-center text-gray-600 glassmorphism p-10 rounded-2xl">กำลังโหลด... 💖</p>';
             renderTabs();
             document.getElementById('pagination-controls').classList.add('hidden');
             let query = db.from('sweet_dates').select('*', { count: 'exact' });
             const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
             if (activeTab === 'pending') { query = query.eq('status', 'pending'); }
             else if (activeTab === 'upcoming') { query = query.eq('status', 'accepted').gte('event_datetime', now); }
             else if (activeTab === 'past') { query = query.lt('event_datetime', now).in('status', ['accepted', 'declined']); }
+            
             query = query.order('event_datetime', { ascending: activeTab !== 'past' }).range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
+            
             const { data, error, count } = await query;
-            if (error) { console.error('Error fetching dates:', error); datesList.innerHTML = `<p class="text-center text-red-500 bg-white p-6 rounded-xl">เกิดข้อผิดพลาด: ${error.message}</p>`; return; }
+
+            if (error) { console.error('Error fetching dates:', error); datesList.innerHTML = `<p class="text-center text-red-500 glassmorphism p-6 rounded-xl">เกิดข้อผิดพลาด: ${error.message}</p>`; return; }
+            
             renderPagination(count || 0);
-            if (!data || data.length === 0) { datesList.innerHTML = '<p class="text-center text-gray-500 bg-white p-6 rounded-xl">ไม่มีรายการในหมวดหมู่นี้</p>'; return; }
+
+            if (!data || data.length === 0) { datesList.innerHTML = '<p class="text-center text-gray-500 glassmorphism p-10 rounded-2xl">ไม่มีรายการในหมวดหมู่นี้</p>'; return; }
+            
             datesList.innerHTML = '';
+            
             data.forEach(date => {
                 const isCreator = date.creator_id === currentUser.id;
                 const isInvitee = date.invitee_id === currentUser.id;
+
                 let responseButtons = '';
-                if (isInvitee && date.status === 'pending') { responseButtons = `<div class="flex space-x-2"><button onclick="handleResponse(${date.id}, true)" class="bg-green-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-green-600">ตอบรับ</button><button onclick="handleResponse(${date.id}, false)" class="bg-red-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-600">ปฏิเสธ</button></div>`; }
+                if (isInvitee && date.status === 'pending') { 
+                    responseButtons = `<div class="flex space-x-2"><button onclick="handleResponse(${date.id}, true)" class="bg-green-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-green-600 transition-all transform hover:scale-105 shadow hover:shadow-lg">ตอบรับ</button><button onclick="handleResponse(${date.id}, false)" class="bg-red-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-600 transition-all transform hover:scale-105 shadow hover:shadow-lg">ปฏิเสธ</button></div>`; 
+                }
                 
                 let actionButtons = '';
-                if (isCreator && (activeTab === 'pending' || activeTab === 'upcoming')) { actionButtons += `<button onclick='handleEdit(${JSON.stringify(date)})' class="p-1 text-gray-400 hover:text-blue-500" title="แก้ไข"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>`; }
-                if (isCreator) { actionButtons += `<button onclick="deleteDate(${date.id})" class="p-1 text-gray-400 hover:text-red-500" title="ลบ"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>`; }
-
-                // --- ✨ ส่วนที่เพิ่มเข้ามาใหม่ ---
+                if (isCreator && (activeTab === 'pending' || activeTab === 'upcoming')) { actionButtons += `<button onclick='handleEdit(${JSON.stringify(date)})' class="p-1.5 rounded-full bg-white/50 text-gray-500 hover:text-blue-500 hover:bg-white" title="แก้ไข"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>`; }
+                if (isCreator) { actionButtons += `<button onclick="deleteDate(${date.id})" class="p-1.5 rounded-full bg-white/50 text-gray-500 hover:text-red-500 hover:bg-white" title="ลบ"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>`; }
+                
                 let shareSection = '';
                 if (isCreator && date.status === 'pending') {
                     shareSection = `
-                        <div class="mt-4 pt-4 border-t border-gray-100">
-                            <button onclick="shareInvitation(${date.id}, '${date.title.replace(/'/g, "\\'")}', '${date.creator_name}')" class="w-full flex items-center justify-center space-x-2 bg-pink-100 text-pink-700 px-4 py-2 rounded-lg hover:bg-pink-200 transition-colors text-sm">
+                        <div class="mt-4 pt-4 border-t border-rose-100/50">
+                            <button onclick="shareInvitation(${date.id}, '${date.title.replace(/'/g, "\\'")}', '${date.creator_name}')" class="w-full flex items-center justify-center space-x-2 bg-rose-100 text-rose-700 font-semibold px-4 py-2 rounded-lg hover:bg-rose-200 transition-colors text-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
                                 <span>แชร์คำเชิญชวนนี้</span>
                             </button>
                         </div>
                     `;
                 }
-                // --- จบส่วนที่เพิ่มเข้ามาใหม่ ---
 
-                const dateCard = `<div class="relative bg-white p-6 rounded-2xl shadow-md border-l-4 ${date.status === 'accepted' ? 'border-green-400' : date.status === 'declined' ? 'border-red-400' : 'border-yellow-400'} animate-fade-in flex flex-col"><div class="absolute top-4 right-4 flex space-x-2">${actionButtons}</div><div class="flex-grow"><p class="text-sm text-gray-400">${formatDate(date.event_datetime)}</p><h2 class="text-2xl font-bold text-gray-800 mt-1">${date.title}</h2><p class="text-sm text-gray-500 mt-1">ชวนโดย: ${date.creator_name}</p><p class="text-gray-600 mt-2">${date.description || ''}</p>${getResponseNoteHTML(date)}</div><div class="mt-4 flex justify-between items-center"><div>${responseButtons}</div><div>${getStatusBadge(date.status)}</div></div>${shareSection}</div>`;
+                const statusColor = date.status === 'accepted' ? 'bg-green-400' : date.status === 'declined' ? 'bg-red-400' : 'bg-yellow-400';
+                
+                const dateCard = `
+                <div class="glassmorphism rounded-2xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] animate-fade-in">
+                    <div class="h-2 ${statusColor}"></div>
+                    <div class="p-6">
+                        <div class="absolute top-4 right-4 flex space-x-2">${actionButtons}</div>
+                        <div class="flex-grow space-y-3">
+                            <div class="flex items-center space-x-2 text-sm text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                <span>${formatDate(date.event_datetime)}</span>
+                            </div>
+                            <h2 class="text-2xl font-bold text-gray-800">${date.title}</h2>
+                            <div class="flex items-center space-x-2 text-sm text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                <span>ชวนโดย: ${date.creator_name}</span>
+                            </div>
+                            <p class="text-gray-600 pt-1">${date.description || ''}</p>
+                            ${getResponseNoteHTML(date)}
+                        </div>
+                        <div class="mt-4 flex justify-between items-center">
+                            <div>${responseButtons}</div>
+                            <div>${getStatusBadge(date.status)}</div>
+                        </div>
+                        ${shareSection}
+                    </div>
+                </div>
+                `;
                 datesList.innerHTML += dateCard;
             });
         };
-
+        
+        // ... (โค้ดส่วนที่เหลือทั้งหมดเหมือนเดิม) ...
         window.handleEdit = (date) => {
             const form = document.getElementById('new-date-form');
             form.reset();
@@ -287,7 +345,6 @@
         window.changeTab = (tabName) => { activeTab = tabName; currentPage = 0; fetchAndRenderDates(); };
         window.changePage = (direction) => { currentPage += direction; fetchAndRenderDates(); };
 
-        // --- ✨ ฟังก์ชันใหม่สำหรับแชร์ ---
         window.shareInvitation = (dateId, title, creatorName) => {
             const siteURL = window.location.origin + window.location.pathname;
             const invitationURL = `${siteURL}?date_id=${dateId}`;
